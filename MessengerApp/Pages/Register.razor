@@ -1,0 +1,39 @@
+﻿// MyPage.razor
+@page "/register"
+
+@inject RegisterUserCommandHandler RegisterUserHandler
+@inject AuthenticationStateProvider _authStateProvider
+
+<h1>Register User</h1>
+
+<form @onsubmit="HandleSubmit">
+    <label>Username:</label>
+    <input type="text" @bind="Username" />
+
+    <label>Email:</label>
+    <input type="email" @bind="Email" />
+
+    <label>Password:</label>
+    <input type="password" @bind="Password" />
+
+    <button type="submit">Register</button>
+</form>
+
+@code {
+    private string Username { get; set; }
+    private string Email { get; set; }
+    private string Password { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        var command = new RegisterUserCommand
+            {
+                Username = Username,
+                Email = Email,
+                Password = Password
+            };
+
+        
+        await RegisterUserHandler.Handle(command);
+    }
+}

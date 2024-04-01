@@ -1,0 +1,52 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31611.283
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessengerAPI", "MessengerAPI\MessengerAPI.csproj", "{AFBB9A59-3B84-4B74-A919-B17A28B62E65}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "MessengerDB", "MessengerDB\MessengerDB.sqlproj", "{AED7520B-9F0A-4AF8-9B4D-932E4AB2E7AE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessengerApp", "MessengerApp\MessengerApp.csproj", "{FCE0B911-A2BF-4BDC-8948-216746FA4C04}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessengerInfrastructure", "MessengerInfrastructure\MessengerInfrastructure.csproj", "{A40C896C-8100-47C4-AD00-1B8DB9B18591}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessengerDataDomain", "MessengerDataDomain\MessengerDataDomain.csproj", "{542F9C94-B949-461A-B5C4-5672A5BDBD80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AFBB9A59-3B84-4B74-A919-B17A28B62E65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFBB9A59-3B84-4B74-A919-B17A28B62E65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFBB9A59-3B84-4B74-A919-B17A28B62E65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFBB9A59-3B84-4B74-A919-B17A28B62E65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AED7520B-9F0A-4AF8-9B4D-932E4AB2E7AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AED7520B-9F0A-4AF8-9B4D-932E4AB2E7AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AED7520B-9F0A-4AF8-9B4D-932E4AB2E7AE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{AED7520B-9F0A-4AF8-9B4D-932E4AB2E7AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AED7520B-9F0A-4AF8-9B4D-932E4AB2E7AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AED7520B-9F0A-4AF8-9B4D-932E4AB2E7AE}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{FCE0B911-A2BF-4BDC-8948-216746FA4C04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCE0B911-A2BF-4BDC-8948-216746FA4C04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCE0B911-A2BF-4BDC-8948-216746FA4C04}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FCE0B911-A2BF-4BDC-8948-216746FA4C04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCE0B911-A2BF-4BDC-8948-216746FA4C04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCE0B911-A2BF-4BDC-8948-216746FA4C04}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{A40C896C-8100-47C4-AD00-1B8DB9B18591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A40C896C-8100-47C4-AD00-1B8DB9B18591}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A40C896C-8100-47C4-AD00-1B8DB9B18591}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A40C896C-8100-47C4-AD00-1B8DB9B18591}.Release|Any CPU.Build.0 = Release|Any CPU
+		{542F9C94-B949-461A-B5C4-5672A5BDBD80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{542F9C94-B949-461A-B5C4-5672A5BDBD80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{542F9C94-B949-461A-B5C4-5672A5BDBD80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{542F9C94-B949-461A-B5C4-5672A5BDBD80}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61F7FB11-1E47-470C-91E2-47F8143E1572}
+	EndGlobalSection
+EndGlobal
