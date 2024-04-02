@@ -1,37 +1,31 @@
-﻿using DataDomain.Users;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using MessengerInfrastructure.Services;
+using DataDomain.Users;
 
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-	private readonly UserManager<User> _userManager;
+	private readonly RegisterUserCommandHandler _registerUserCommandHandler;
 
-	public UsersController(UserManager<User> userManager)
+	public UsersController(RegisterUserCommandHandler registerUserCommandHandler)
 	{
-		_userManager = userManager;
+		_registerUserCommandHandler = registerUserCommandHandler;
 	}
 
 	[HttpPost("register")]
 	public async Task<IActionResult> Register(RegisterUserDTO registerUserDto)
 	{
-		// Create new User and store in Identity database
-		var user = new User
+		try
 		{
-			Username = registerUserDto.Username,
-			Email = registerUserDto.Email
-		};
-
-		var result = await _userManager.CreateAsync(user, registerUserDto.Password);
-		if (result.Succeeded)
-		{
+			await _registerUserCommandHandler.Handle(registerUserDto);
 			return Ok();
 		}
-		else
+		catch (Exception ex)
 		{
-			// Registration failed, return error messages
-			return BadRequest(result.Errors);
+			// Log the exception
+			return StatusCode(500, "An error occurred while processing the request.");
 		}
 	}
 }

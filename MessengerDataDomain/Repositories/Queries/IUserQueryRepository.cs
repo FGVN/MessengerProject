@@ -1,23 +1,35 @@
-﻿using DataDomain.Users;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using DataDomain.Users;
+using MessengerInfrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataDomain.Repositories
 {
-    public interface IUserQueryRepository
-    {
-        Task<IEnumerable<User>> GetAllUsersAsync();
-        Task<User> GetUserByIdAsync(int userId);
-    }
+	public interface IUserQueryRepository
+	{
+		Task<IEnumerable<User>> GetAllUsersAsync();
+		Task<User> GetUserByIdAsync(int userId);
+	}
 
-    class UserQueryRepository : IUserQueryRepository
-    {
-        public Task<IEnumerable<User>> GetAllUsersAsync()
-        {
-            throw new NotImplementedException();
-        }
+	public class UserQueryRepository : IUserQueryRepository
+	{
+		private readonly MessengerDbContext _context;
 
-        public Task<User> GetUserByIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
-    }
+		public UserQueryRepository(MessengerDbContext context)
+		{
+			_context = context;
+		}
+
+		public async Task<IEnumerable<User>> GetAllUsersAsync()
+		{
+			return await _context.Users.ToListAsync();
+		}
+
+		public async Task<User> GetUserByIdAsync(int userId)
+		{
+			return await _context.Users.FindAsync(userId);
+		}
+	}
 }

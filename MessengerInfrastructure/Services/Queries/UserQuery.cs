@@ -1,32 +1,27 @@
 ﻿using DataDomain.Users;
 using MessengerInfrastructure.Services.InterFaces;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MessengerInfrastructure.Services
 {
 	class UserQuery : IUserQuery
 	{
-		private readonly IUserQueryRepository _userRepository;
+		private readonly IUnitOfWork _unitOfWork;
 
-		public UserQuery(IUserQueryRepository userRepository)
+		public UserQuery(IUnitOfWork unitOfWork)
 		{
-			_userRepository = userRepository;
+			_unitOfWork = unitOfWork;
 		}
 
 		public async Task<User> GetUserByIdAsync(int userId)
 		{
-			var user = await _userRepository.GetUserByIdAsync(userId);
-			return MapToUserDto(user);
+			var user = await _unitOfWork.UserQueries.GetUserByIdAsync(userId);
+			return user;
 		}
 
 		public async Task<IEnumerable<User>> GetAllUsersAsync()
 		{
-			var users = await _userRepository.GetAllUsersAsync();
-			return users.Select(user => MapToUserDto(user));
+			var users = await _unitOfWork.UserQueries.GetAllUsersAsync();
+			return users;
 		}
-
-		private User MapToUserDto(User user) => user;
 	}
 }

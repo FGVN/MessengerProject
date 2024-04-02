@@ -1,4 +1,5 @@
-﻿using DataDomain.Users;
+﻿using System.Threading.Tasks;
+using DataDomain.Users;
 using MessengerInfrastructure.Repositories;
 using MessengerInfrastructure.Services.InterFaces;
 
@@ -6,16 +7,17 @@ namespace MessengerInfrastructure.Services
 {
 	public class UserCommand : IUserCommand
 	{
-		private readonly IUserCommandRepository _userRepository;
+		private readonly IUnitOfWork _unitOfWork;
 
-		public UserCommand(IUserCommandRepository userRepository)
+		public UserCommand(IUnitOfWork unitOfWork)
 		{
-			_userRepository = userRepository;
+			_unitOfWork = unitOfWork;
 		}
 
 		public async Task DeleteUserAsync(int userId)
 		{
-			await _userRepository.DeleteUserAsync(userId);
+			await _unitOfWork.Users.DeleteUserAsync(userId);
+			await _unitOfWork.SaveChangesAsync();
 		}
 
 		public async Task RegisterUserAsync(RegisterUserDTO registerUserDto)
@@ -27,7 +29,8 @@ namespace MessengerInfrastructure.Services
 				Password = registerUserDto.Password
 			};
 
-			await _userRepository.CreateUserAsync(user);
+			await _unitOfWork.Users.CreateUserAsync(user);
+			await _unitOfWork.SaveChangesAsync();
 		}
 	}
 }
