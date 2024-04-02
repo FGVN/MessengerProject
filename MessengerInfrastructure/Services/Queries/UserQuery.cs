@@ -12,16 +12,16 @@ namespace MessengerInfrastructure.Services
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task<User> GetUserByIdAsync(int userId)
-		{
-			var user = await _unitOfWork.UserQueries.GetUserByIdAsync(userId);
-			return user;
-		}
-
 		public async Task<IEnumerable<User>> GetAllUsersAsync()
 		{
-			var users = await _unitOfWork.UserQueries.GetAllUsersAsync();
+			var users = await _unitOfWork.GetQueryRepository<User>().GetAllAsync();
 			return users;
+		}
+
+		public async Task<User> GetUserByIdAsync(int userId)
+		{
+			var user = await _unitOfWork.GetQueryRepository<User>().GetByIdAsync(userId);
+			return user;
 		}
 	}
 }

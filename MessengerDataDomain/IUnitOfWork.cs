@@ -1,12 +1,12 @@
-﻿using DataDomain.Repositories;
+﻿
+using DataDomain.Repositories;
 
 namespace MessengerInfrastructure
 {
 	public interface IUnitOfWork : IDisposable
 	{
-		IUserCommandRepository Users { get; set; }
-		IUserQueryRepository UserQueries { get; set; }
-		Task<int> SaveChangesAsync();
+		ICommandRepository<TEntity> GetCommandRepository<TEntity>() where TEntity : class; 
+		IQueryRepository<TEntity> GetQueryRepository<TEntity>() where TEntity : class; 
+		Task SaveChangesAsync(); 
 	}
 }
-

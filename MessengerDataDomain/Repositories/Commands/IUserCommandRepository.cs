@@ -1,13 +1,13 @@
-﻿using DataDomain.Users;
+﻿using System;
+using System.Threading.Tasks;
+using DataDomain.Users;
 using MessengerInfrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataDomain.Repositories
 {
-	public interface IUserCommandRepository
+	public interface IUserCommandRepository : ICommandRepository<User>
 	{
-		Task CreateUserAsync(User user);
-		Task UpdateUserAsync(User user);
-		Task DeleteUserAsync(int userId);
 	}
 
 	public class UserRepository : IUserCommandRepository
@@ -19,26 +19,25 @@ namespace DataDomain.Repositories
 			_context = context;
 		}
 
-		public async Task CreateUserAsync(User user)
+		public Task AddAsync(User entity)
 		{
-			_context.Users.Add(user);
-			await _context.SaveChangesAsync();
+			_context.Users.Add(entity);
+			return _context.SaveChangesAsync();
 		}
 
-		public async Task DeleteUserAsync(int userId)
+		public Task DeleteAsync(User entity)
 		{
-			var user = await _context.Users.FindAsync(userId);
-			if (user != null)
+			if (entity != null)
 			{
-				_context.Users.Remove(user);
-				await _context.SaveChangesAsync();
+				_context.Users.Remove(entity);
 			}
+			return _context.SaveChangesAsync();
 		}
 
-		public async Task UpdateUserAsync(User user)
+		public Task UpdateAsync(User entity)
 		{
-			_context.Users.Update(user);
-			await _context.SaveChangesAsync();
+			_context.Users.Update(entity);
+			return _context.SaveChangesAsync();
 		}
 	}
 }

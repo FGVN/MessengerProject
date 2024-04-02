@@ -1,13 +1,13 @@
 ﻿using DataDomain.Users;
 using MessengerInfrastructure;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DataDomain.Repositories
 {
-	public interface IUserQueryRepository
+	public interface IUserQueryRepository : IQueryRepository<User>
 	{
-		Task<IEnumerable<User>> GetAllUsersAsync();
-		Task<User> GetUserByIdAsync(int userId);
 	}
 
 	public class UserQueryRepository : IUserQueryRepository
@@ -19,14 +19,14 @@ namespace DataDomain.Repositories
 			_context = context;
 		}
 
-		public async Task<IEnumerable<User>> GetAllUsersAsync()
+		public async Task<IEnumerable<User>> GetAllAsync()
 		{
 			return await _context.Users.ToListAsync();
 		}
 
-		public async Task<User> GetUserByIdAsync(int userId)
+		public async Task<User> GetByIdAsync(int id)
 		{
-			return await _context.Users.FindAsync(userId);
+			return await _context.Users.FindAsync(id);
 		}
 	}
 }

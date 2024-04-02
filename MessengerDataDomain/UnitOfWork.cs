@@ -1,48 +1,47 @@
-﻿using System;
-using System.Threading.Tasks;
-using DataDomain.Users;
-using DataDomain.Repositories;
-using System.Reflection;
+﻿using DataDomain.Repositories;
+
 
 namespace MessengerInfrastructure
 {
-	public class UnitOfWork : IUnitOfWork, IDisposable
+	public class UnitOfWork : IUnitOfWork
 	{
 		private readonly MessengerDbContext _context;
-
-		// Repositories
-		public IUserCommandRepository Users { get; set; }
-		public IUserQueryRepository UserQueries { get; set; }
+		private readonly Dictionary<Type, object> repositories = new Dictionary<Type, object>();
 
 		public UnitOfWork(MessengerDbContext context)
 		{
 			_context = context;
-
-			var repositoryInterfaces = typeof(IUnitOfWork)
-				.GetProperties()
-				.Where(p => p.PropertyType.IsInterface && p.PropertyType.Name.EndsWith("Repository"))
-				.ToList();
-
-			foreach (var repositoryInterface in repositoryInterfaces)
+		}
+		public ICommandRepository<TEntity> GetCommandRepository<TEntity>() where TEntity : class
+		{
+			var entityType = typeof(TEntity);
+			if (!repositories.ContainsKey(entityType))
 			{
-				var repositoryType = typeof(UnitOfWork).Assembly.GetTypes()
-					.FirstOrDefault(t => repositoryInterface.PropertyType.IsAssignableFrom(t) && !t.IsInterface);
-
-				if (repositoryType != null)
-				{
-					var repositoryInstance = Activator.CreateInstance(repositoryType, _context);
-					repositoryInterface.SetValue(this, repositoryInstance);
-				}
-				else
-				{
-					throw new InvalidOperationException($"No concrete implementation found for repository interface '{repositoryInterface.Name}'");
-				}
+				var repositoryType = typeof(ICommandRepository<>).MakeGenericType(entityType);
+				var repositoryInstance = Activator.CreateInstance(repositoryType, _context);
+				repositories.Add(entityType, repositoryInstance);
 			}
+
+			return (ICommandRepository<TEntity>)repositories[entityType];
 		}
 
-		public async Task<int> SaveChangesAsync()
+
+		public IQueryRepository<TEntity> GetQueryRepository<TEntity>() where TEntity : class
 		{
-			return await _context.SaveChangesAsync();
+			var entityType = typeof(TEntity);
+			if (!repositories.ContainsKey(entityType))
+			{
+				var repositoryType = typeof(IQueryRepository<>).MakeGenericType(entityType);
+				var repositoryInstance = Activator.CreateInstance(repositoryType, _context);
+				repositories.Add(entityType, repositoryInstance);
+			}
+
+			return (IQueryRepository<TEntity>)repositories[entityType];
+		}
+
+		public async Task SaveChangesAsync()
+		{
+			await _context.SaveChangesAsync();
 		}
 
 		public void Dispose()
@@ -51,4 +50,3 @@ namespace MessengerInfrastructure
 		}
 	}
 }
-

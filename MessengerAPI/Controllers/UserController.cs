@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 using MessengerInfrastructure.Services;
+using MessengerInfrastructure.Utilities;
 using DataDomain.Users;
 
 [ApiController]
@@ -8,10 +10,12 @@ using DataDomain.Users;
 public class UsersController : ControllerBase
 {
 	private readonly RegisterUserCommandHandler _registerUserCommandHandler;
+	private readonly JwtTokenGenerator _jwtTokenGenerator;
 
-	public UsersController(RegisterUserCommandHandler registerUserCommandHandler)
+	public UsersController(RegisterUserCommandHandler registerUserCommandHandler, JwtTokenGenerator jwtTokenGenerator)
 	{
 		_registerUserCommandHandler = registerUserCommandHandler;
+		_jwtTokenGenerator = jwtTokenGenerator; // Inject JwtTokenGenerator
 	}
 
 	[HttpPost("register")]
@@ -20,11 +24,14 @@ public class UsersController : ControllerBase
 		try
 		{
 			await _registerUserCommandHandler.Handle(registerUserDto);
-			return Ok();
+
+
+			var jwtToken = _jwtTokenGenerator.GenerateToken(registerUserDto.Username);
+
+			return Ok(new { token = jwtToken });
 		}
 		catch (Exception ex)
 		{
-			// Log the exception
 			return StatusCode(500, "An error occurred while processing the request.");
 		}
 	}
