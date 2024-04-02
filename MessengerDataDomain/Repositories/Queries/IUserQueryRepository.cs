@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DataDomain.Users;
+﻿using DataDomain.Users;
 using MessengerInfrastructure;
 using Microsoft.EntityFrameworkCore;
 

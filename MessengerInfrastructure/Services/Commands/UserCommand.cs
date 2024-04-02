@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using DataDomain.Users;
-using MessengerInfrastructure.Repositories;
+﻿using DataDomain.Users;
 using MessengerInfrastructure.Services.InterFaces;
 
 namespace MessengerInfrastructure.Services

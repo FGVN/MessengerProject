@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessengerApp", "MessengerAp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessengerInfrastructure", "MessengerInfrastructure\MessengerInfrastructure.csproj", "{A40C896C-8100-47C4-AD00-1B8DB9B18591}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessengerDataDomain", "MessengerDataDomain\MessengerDataDomain.csproj", "{542F9C94-B949-461A-B5C4-5672A5BDBD80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessengerDataAccess", "MessengerDataDomain\MessengerDataAccess.csproj", "{542F9C94-B949-461A-B5C4-5672A5BDBD80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

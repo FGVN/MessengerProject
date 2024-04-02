@@ -6,12 +6,6 @@ using System.Reflection;
 
 namespace MessengerInfrastructure
 {
-	public interface IUnitOfWork : IDisposable
-	{
-		IUserCommandRepository Users { get; set; }
-		IUserQueryRepository UserQueries { get; set; }
-		Task<int> SaveChangesAsync();
-	}
 	public class UnitOfWork : IUnitOfWork, IDisposable
 	{
 		private readonly MessengerDbContext _context;
@@ -19,7 +13,6 @@ namespace MessengerInfrastructure
 		// Repositories
 		public IUserCommandRepository Users { get; set; }
 		public IUserQueryRepository UserQueries { get; set; }
-		// Add more repository properties as needed
 
 		public UnitOfWork(MessengerDbContext context)
 		{

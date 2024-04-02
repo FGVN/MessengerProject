@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using DataDomain.Users;
+﻿using DataDomain.Users;
 using MessengerInfrastructure;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataDomain.Repositories
 {
