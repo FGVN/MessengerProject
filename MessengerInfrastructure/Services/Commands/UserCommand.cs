@@ -27,9 +27,9 @@ namespace MessengerInfrastructure.Services
 
 			var user = new User
 			{
-				Username = registerUserDto.Username,
+				UserName = registerUserDto.Username,
 				Email = registerUserDto.Email,
-				Password = hashedPassword  // Store the hashed password
+				PasswordHash = hashedPassword  // Store the hashed password
 			};
 
 			await _unitOfWork.GetCommandRepository<User>().AddAsync(user);

@@ -2,21 +2,22 @@ using MessengerInfrastructure;
 using Microsoft.EntityFrameworkCore;
 using MessengerInfrastructure.Services;
 using DataDomain.Repositories;
-using MessengerInfrastructure.Services.InterFaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MessengerInfrastructure.Utilities;
+using Microsoft.AspNetCore.Identity;
+using DataDomain.Users;
+using MessengerInfrastructure.Services.InterFaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("appsettings.json");
 
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<MessengerDbContext>(options =>
 	options.UseSqlServer(connectionString));
-
 
 var jwtTokenOptions = builder.Configuration.GetSection("JwtTokenOptions").Get<JwtTokenOptions>();
 
@@ -42,16 +43,35 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register repositories
-builder.Services.AddScoped<IUserCommandRepository, UserRepository>();
-builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
 
-// Register Unit of Work
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+})
+.AddEntityFrameworkStores<MessengerDbContext>()
+.AddDefaultTokenProviders();
 
-// Register services
-builder.Services.AddScoped<IUserCommand, UserCommand>();
-builder.Services.AddScoped<RegisterUserCommandHandler>();
+builder.Services.AddScoped<UserManager<User>>();
+builder.Services.AddScoped<SignInManager<User>>(); 
+builder.Services.AddScoped<JwtTokenGenerator>(); 
+
+
+builder.Services.Configure<JwtTokenOptions>(builder.Configuration.GetSection("JwtTokenOptions"));
+
+
+
+//// Register repositories
+//builder.Services.AddScoped<IUserCommandRepository, UserRepository>();
+//builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
+
+//// Register Unit of Work
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+//// Register Utils
+//builder.Services.AddScoped<JwtTokenGenerator>();
+
+//// Register services
+//builder.Services.AddScoped<IUserCommand, UserCommand>();
+//builder.Services.AddScoped<RegisterUserCommandHandler>();
 
 var app = builder.Build();
 
@@ -68,3 +88,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
