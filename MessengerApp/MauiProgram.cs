@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using MessengerApp.Services;
 using System;
 using System.Net.Http;
+using Microsoft.JSInterop;
 
 namespace MessengerApp
 {
@@ -21,21 +22,19 @@ namespace MessengerApp
 
 			builder.Services.AddMauiBlazorWebView();
 			builder.Services.AddAuthorizationCore();
-			builder.Services.AddScoped<AuthenticatedUser>();
-            builder.Services.AddSingleton<AuthStateProvider>();
-            builder.Services.TryAddScoped<AuthenticationStateProvider, AuthStateProvider>();
-			builder.Services.AddSingleton<AuthService>();
+
+            builder.Services.AddScoped<HttpClient>();
+
+            builder.Services.TryAddScoped<AuthStateProvider>();
+            builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+
+			builder.Services.AddScoped<AuthService>();
 
 			// Register HttpClient as a scoped service
-			builder.Services.AddScoped<HttpClient>(sp =>
-			{
-				var httpClient = new HttpClient
-				{
-				};
-				return httpClient;
-			});
 
 			builder.Services.AddScoped<RegisterUserCommandHandler>();
+			builder.Services.AddScoped<LogoutUserCommandHandler>();
+			builder.Services.AddScoped<LoginUserCommandHandler>();
 
 #if DEBUG
 			builder.Services.AddBlazorWebViewDeveloperTools();

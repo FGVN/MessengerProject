@@ -4,38 +4,32 @@ using System.Security.Claims;
 
 namespace MessengerApp.Services;
 
-public class AuthService : AuthenticationStateProvider
+public class AuthService 
 {
 	private ClaimsPrincipal currentUser = new ClaimsPrincipal(new ClaimsIdentity());
 
-	public override Task<AuthenticationState> GetAuthenticationStateAsync() =>
-		Task.FromResult(new AuthenticationState(currentUser));
 
-	public async Task<AuthenticationState> RegisterAndLoginAsync(User user) // Change method signature
+	public async Task<AuthenticationState> RegisterAndLoginAsync(User user) 
 	{
 		var authenticatedUser = await RegisterUserAsync(user);
 
 		currentUser = authenticatedUser;
 
-		NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentUser)));
 
 		return new AuthenticationState(currentUser);
 	}
 
-	private async Task<ClaimsPrincipal> RegisterUserAsync(User user) // Change method signature
+	private async Task<ClaimsPrincipal> RegisterUserAsync(User user) 
 	{
-		// TODO: Implement user registration logic and obtain JWT token
 
 		var newUserClaims = new[]
 		{
-			new Claim(ClaimTypes.NameIdentifier, user.JwtToken), // Change to correct property for JWT token
-            // Add other claims if necessary
+			new Claim(ClaimTypes.NameIdentifier, user.JwtToken), 
         };
 
 		var identity = new ClaimsIdentity(newUserClaims, "custom");
 		var registeredUser = new ClaimsPrincipal(identity);
 
-		// Simulate user registration and return registered user
 		return await Task.FromResult(registeredUser);
 	}
 
@@ -51,11 +45,9 @@ public class AuthService : AuthenticationStateProvider
 
 		return Task.FromResult(authenticatedUser);
 	}
+    public void Logout()
+    {
+        currentUser = new ClaimsPrincipal(new ClaimsIdentity());
+    }
 
-	public void Logout()
-	{
-		currentUser = new ClaimsPrincipal(new ClaimsIdentity());
-		NotifyAuthenticationStateChanged(
-			Task.FromResult(new AuthenticationState(currentUser)));
-	}
 }

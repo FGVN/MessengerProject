@@ -8,7 +8,6 @@ using System.Text;
 using MessengerInfrastructure.Utilities;
 using Microsoft.AspNetCore.Identity;
 using DataDomain.Users;
-using MessengerInfrastructure.Services.InterFaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +51,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 
 builder.Services.AddScoped<UserManager<User>>();
 builder.Services.AddScoped<SignInManager<User>>(); 
-builder.Services.AddScoped<JwtTokenGenerator>(); 
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>(); 
 
 
 builder.Services.Configure<JwtTokenOptions>(builder.Configuration.GetSection("JwtTokenOptions"));
@@ -71,7 +70,8 @@ builder.Services.Configure<JwtTokenOptions>(builder.Configuration.GetSection("Jw
 
 //// Register services
 //builder.Services.AddScoped<IUserCommand, UserCommand>();
-//builder.Services.AddScoped<RegisterUserCommandHandler>();
+builder.Services.AddScoped<RegisterUserCommandHandler>();
+builder.Services.AddScoped<LoginUserCommandHandler>();
 
 var app = builder.Build();
 

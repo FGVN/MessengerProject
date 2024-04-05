@@ -1,12 +1,10 @@
 ﻿@page "/logout"
 
-@inject AuthStateProvider auth
-@inject NavigationManager nav
+@inject LogoutUserCommandHandler logoutHandler
 
 @code {
     protected override async Task OnInitializedAsync()
     {
-            //auth.MarkUserAsLoggedOut();
-            nav.NavigateTo("/");
+        await logoutHandler.ExecuteAsync();
     }
 }

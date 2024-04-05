@@ -2,47 +2,30 @@
 using System;
 using System.Threading.Tasks;
 using MessengerInfrastructure.Services;
-using MessengerInfrastructure.Utilities;
 using DataDomain.Users;
-using Microsoft.AspNetCore.Identity;
 
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-	private readonly UserManager<User> _userManager;
-	private readonly JwtTokenGenerator _jwtTokenGenerator;
+	private readonly RegisterUserCommandHandler _registerUserCommandHandler;
+	private readonly LoginUserCommandHandler _loginUserCommandHandler;
 
-	public UsersController(UserManager<User> userManager, JwtTokenGenerator jwtTokenGenerator)
+	public UsersController(RegisterUserCommandHandler registerUserCommandHandler, LoginUserCommandHandler loginUserCommandHandler)
 	{
-		_userManager = userManager;
-		_jwtTokenGenerator = jwtTokenGenerator;
+		_registerUserCommandHandler = registerUserCommandHandler;
+		_loginUserCommandHandler = loginUserCommandHandler;
 	}
-
+	//Mediator
 	[HttpPost("register")]
 	public async Task<IActionResult> Register(RegisterUserDTO registerUserDto)
 	{
-		try
-		{
-			var user = new User { UserName = registerUserDto.Username, Email = registerUserDto.Email };
+		return Ok(await _registerUserCommandHandler.Handle(registerUserDto));
+	}
 
-			var result = await _userManager.CreateAsync(user, registerUserDto.Password);
-
-			if (result.Succeeded)
-			{
-
-				var jwtToken = _jwtTokenGenerator.GenerateToken(registerUserDto.Username);
-
-				return Ok(new { token = jwtToken });
-			}
-			else
-			{
-				return BadRequest(result.Errors);
-			}
-		}
-		catch (Exception ex)
-		{
-			return StatusCode(500, "An error occurred while processing the request.");
-		}
+	[HttpPost("login")]
+	public async Task<IActionResult> Login(LoginUserDTO loginUserDto)
+	{
+		return Ok(await _loginUserCommandHandler.Handle(loginUserDto));
 	}
 }
