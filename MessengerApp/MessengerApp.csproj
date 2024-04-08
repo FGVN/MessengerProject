@@ -50,13 +50,13 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="MatBlazor" Version="2.10.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.28" />
       <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.28" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Data\" />
-      <Folder Include="Queries\" />
     </ItemGroup>
 
 </Project>

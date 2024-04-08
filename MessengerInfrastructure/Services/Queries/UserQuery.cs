@@ -3,7 +3,7 @@ using MessengerInfrastructure.Services.InterFaces;
 
 namespace MessengerInfrastructure.Services
 {
-	class UserQuery : IUserQuery
+	public class UserQuery : IUserQuery
 	{
 		private readonly IUnitOfWork _unitOfWork;
 

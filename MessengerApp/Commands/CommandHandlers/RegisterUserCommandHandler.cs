@@ -1,25 +1,24 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
-using System.Net.Http.Json;
+﻿using Microsoft.AspNetCore.Components;
 using MessengerApp.Models;
 using MessengerApp.Services;
-using System.Text.Json;
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.Authorization;
 
 public class RegisterUserCommandHandler
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpWrapper _httpWrapper;
     private readonly AuthService _authService;
     private readonly AuthenticationStateProvider _authStateProvider;
+    private readonly NavigationManager _navigationManager;
 
-    public RegisterUserCommandHandler(HttpClient httpClient, AuthService authService, AuthenticationStateProvider authStateProvider)
+    public RegisterUserCommandHandler(HttpWrapper httpWrapper, AuthService authService, AuthenticationStateProvider authStateProvider, NavigationManager navigationManager)
     {
-        _httpClient = httpClient;
+        _httpWrapper = httpWrapper;
         _authService = authService;
         _authStateProvider = authStateProvider;
+        _navigationManager = navigationManager;
     }
 
-    public async Task Handle(RegisterUserCommand command, NavigationManager navigationManager)
+    public async Task Handle(RegisterUserCommand command)
     {
         try
         {
@@ -30,30 +29,16 @@ public class RegisterUserCommandHandler
                 Password = command.Password
             };
 
-            var response = await _httpClient.PostAsJsonAsync("https://localhost:7287/api/Users/register", requestBody);
+            string jwtToken = await _httpWrapper.PostAsync<RegisterUserCommand, string>("https://localhost:7287/api/Users/register", requestBody);
 
-            if (response.IsSuccessStatusCode)
-            {
-                string responseBody = await response.Content.ReadAsStringAsync();
-                var responseObject = JsonSerializer.Deserialize<JsonDocument>(responseBody);
-                string jwtToken = responseObject.RootElement.GetProperty("token").GetString();
+            var user = await _authService.RegisterAndLoginAsync(new User { JwtToken = jwtToken });
 
-
-                var user = await _authService.RegisterAndLoginAsync(new User { JwtToken = jwtToken });
-
-                ((AuthStateProvider)_authStateProvider).SetAuthenticatedUser(user.User, jwtToken);
-                navigationManager.NavigateTo("/");
-            }
-            else
-            {
-                // Response Unsuccessful
-            }
+            ((AuthStateProvider)_authStateProvider).SetAuthenticatedUser(user.User, jwtToken);
+            _navigationManager.NavigateTo("/");
         }
         catch (Exception ex)
         {
             // Handle exception
         }
     }
-
 }
-

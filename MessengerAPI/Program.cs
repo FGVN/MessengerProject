@@ -1,13 +1,13 @@
 using MessengerInfrastructure;
 using Microsoft.EntityFrameworkCore;
 using MessengerInfrastructure.Services;
-using DataDomain.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MessengerInfrastructure.Utilities;
 using Microsoft.AspNetCore.Identity;
 using DataDomain.Users;
+using MessengerInfrastructure.Services.QueryHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,22 +56,9 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
 builder.Services.Configure<JwtTokenOptions>(builder.Configuration.GetSection("JwtTokenOptions"));
 
-
-
-//// Register repositories
-//builder.Services.AddScoped<IUserCommandRepository, UserRepository>();
-//builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
-
-//// Register Unit of Work
-//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-//// Register Utils
-//builder.Services.AddScoped<JwtTokenGenerator>();
-
-//// Register services
-//builder.Services.AddScoped<IUserCommand, UserCommand>();
 builder.Services.AddScoped<RegisterUserCommandHandler>();
 builder.Services.AddScoped<LoginUserCommandHandler>();
+builder.Services.AddScoped<UserMenuQueryHandler>();
 
 var app = builder.Build();
 

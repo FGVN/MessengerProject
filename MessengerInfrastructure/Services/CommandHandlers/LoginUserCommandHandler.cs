@@ -8,22 +8,22 @@ namespace MessengerInfrastructure.Services
 {
 	public class LoginUserCommandHandler
 	{
-		private readonly UserManager<User> _manager;
-		private readonly IJwtTokenGenerator _tokenGen;
+		private readonly UserManager<User> manager;
+		private readonly IJwtTokenGenerator tokenGen;
 
 		public LoginUserCommandHandler(UserManager<User> manager, IJwtTokenGenerator tokenGen)
 		{
-			_manager = manager;
-			_tokenGen = tokenGen;
+			this.manager = manager;
+			this.tokenGen = tokenGen;
 		}
 
 		public async Task<string> Handle(LoginUserDTO loginUserDto)
 		{
-			var user = await _manager.FindByEmailAsync(loginUserDto.Email);
+			var user = await manager.FindByEmailAsync(loginUserDto.Email);
 
-			if (user != null && await _manager.CheckPasswordAsync(user, loginUserDto.Password))
+			if (user != null && await manager.CheckPasswordAsync(user, loginUserDto.Password))
 			{
-				var jwtToken = _tokenGen.GenerateToken(user.UserName);
+				var jwtToken = tokenGen.GenerateToken(user.UserName);
 
 				return jwtToken;
 			}
