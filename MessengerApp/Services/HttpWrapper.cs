@@ -28,6 +28,26 @@ public class HttpWrapper
         }
     }
 
+    public async Task<TResponse> GetAsync<TResponse>(string url, string jwtToken)
+    {
+        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+
+        using (var response = await _httpClient.GetAsync(url))
+        {
+            return await HandleResponse<TResponse>(response);
+        }
+    }
+
+    public async Task<TResponse> PostAsync<TRequest, TResponse>(string url, TRequest data, string jwtToken)
+    {
+        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+
+        using (var response = await _httpClient.PostAsJsonAsync(url, data))
+        {
+            return await HandleResponse<TResponse>(response);
+        }
+    }
+
     private async Task<T> HandleResponse<T>(HttpResponseMessage response)
     {
         if (response.IsSuccessStatusCode)

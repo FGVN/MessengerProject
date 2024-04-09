@@ -7,7 +7,7 @@ using System.Text;
 using MessengerInfrastructure.Utilities;
 using Microsoft.AspNetCore.Identity;
 using DataDomain.Users;
-using MessengerInfrastructure.Services.QueryHandlers;
+using DataDomain.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,8 +49,13 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 .AddEntityFrameworkStores<MessengerDbContext>()
 .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
+builder.Services.AddScoped<IUserCommandRepository, UserCommandRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddScoped<UserManager<User>>();
 builder.Services.AddScoped<SignInManager<User>>(); 
+
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>(); 
 
 

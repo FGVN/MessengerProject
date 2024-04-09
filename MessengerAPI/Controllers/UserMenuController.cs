@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MessengerInfrastructure.Services.QueryHandlers;
+using Microsoft.AspNetCore.Authorization; 
+using MessengerInfrastructure.Services;
 using DataAccess.Models.Users;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,12 +19,16 @@ public class UserMenuController : ControllerBase
     [HttpGet("users")]
     public async Task<IEnumerable<UserMenuItemDTO>> GetUsers()
     {
-        return await _userMenuQueryHandler.GetUsersAsync();
+        var userId = User.FindFirst("nameid")?.Value;
+
+        return await _userMenuQueryHandler.GetAllAsync();
     }
 
     [HttpPost("users/search")]
-    public async Task<IEnumerable<UserMenuItemDTO>> SearchUsers(SearchUsersQuery query)
+    public async Task<IEnumerable<object>> SearchUsers(SearchUsersQuery query)
     {
-        return await _userMenuQueryHandler.SearchUsersAsync(query);
+        var userId = User.FindFirst("nameid")?.Value;
+
+        return await _userMenuQueryHandler.SearchAsync(query);
     }
 }

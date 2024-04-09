@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.JSInterop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,12 +7,16 @@ using System.Threading.Tasks;
 public class FindUsersQueryHandler
 {
     private readonly HttpWrapper _httpWrapper;
+    private readonly IJSRuntime _jsRuntime; // Inject IJSRuntime here
+
     public static int ItemsPerPage = 10;
 
-    public FindUsersQueryHandler(HttpWrapper httpWrapper)
+    public FindUsersQueryHandler(HttpWrapper httpWrapper, IJSRuntime jsRuntime)
     {
         _httpWrapper = httpWrapper;
+        _jsRuntime = jsRuntime;
     }
+
     public async Task<IEnumerable<UserMenuItem>> Handle(FindUsersQuery query, int PageNumber)
     {
         try
@@ -19,10 +24,11 @@ public class FindUsersQueryHandler
             var startIndex = (PageNumber - 1) * ItemsPerPage;
             var endIndex = startIndex + ItemsPerPage - 1;
 
-            // Construct the URL with page information
             var url = $"https://localhost:7287/api/UserMenu/users/search";
 
-            // Make the HTTP POST request with the query object in the request body
+            //With auth
+            //var jwtToken = await GetJwtTokenFromLocalStorage();
+            //return await _httpWrapper.PostAsync<FindUsersQuery, IEnumerable<UserMenuItem>>(url, query, jwtToken);
             return await _httpWrapper.PostAsync<FindUsersQuery, IEnumerable<UserMenuItem>>(url, query);
         }
         catch (Exception ex)
@@ -33,4 +39,9 @@ public class FindUsersQueryHandler
         }
     }
 
+    private async Task<string> GetJwtTokenFromLocalStorage()
+    {
+        // Retrieve JWT token from localStorage using JavaScript interop
+        return await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "jwtToken");
+    }
 }

@@ -10,11 +10,11 @@ namespace DataDomain.Repositories
 	{
 	}
 
-	public class UserRepository : IUserCommandRepository
+	public class UserCommandRepository : IUserCommandRepository
 	{
 		private readonly MessengerDbContext _context;
 
-		public UserRepository(MessengerDbContext context)
+		public UserCommandRepository(MessengerDbContext context)
 		{
 			_context = context;
 		}

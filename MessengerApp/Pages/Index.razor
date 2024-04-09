@@ -8,29 +8,30 @@
         <SurveyPrompt Title="How is Blazor working for you?" />
     </NotAuthorized>
     <Authorized>
-        
+        <form @onsubmit="HandleSearch">
+            <MatTextField TValue="string" @bind-Value="Query" Label="Search" Dense="true" />
+            <MatButton Type="submit" Raised="true" Dense="true">Search</MatButton>
+        </form>
+        <MatTable Items="@users">
+            <MatTableHeader>
+                <th>Username</th>
+                <th>Email</th>
+            </MatTableHeader>
+            <MatTableRow  Context="tableRowContext">
+                <td>@tableRowContext.Username</td>
+                <td>@tableRowContext.Email</td>
+            </MatTableRow>
+        </MatTable>
+        <MatPagination TotalItems="totalUsersCount" PageSize="PageSize" CurrentPage="PageNumber" OnPageChange="HandlePageChange" />
     </Authorized>
 </AuthorizeView>
 
-<form @onsubmit="HandleSearch">
-    <MatTextField @bind-Value="Query" Label="Search" Dense="true" />
-    <MatButton Type="submit" Raised="true" Dense="true">Search</MatButton>
-</form>
-<MatTable Items="@users">
-    <MatTableHeader>
-        <th>Username</th>
-        <th>Email</th>
-    </MatTableHeader>
-    <MatTableRow>
-        <td>@context.Username</td>
-        <td>@context.Email</td>
-    </MatTableRow>
-</MatTable>
 @code {
     private string Query { get; set; }
     private IEnumerable<UserMenuItem> users;
     private int PageNumber = 1;
     private int totalUsersCount;
+    private const int PageSize = 10; // Number of items per page
 
     private async Task HandleSearch()
     {
@@ -43,11 +44,10 @@
         var findUsersQuery = new FindUsersQuery
         {
             Query = Query,
-            SortBy = "username", 
-            SortDirection = "asc", 
-            //FIX
-            From = 0,
-            To = 100
+            SortBy = "username",
+            SortDirection = "asc",
+            From = (PageNumber - 1) * PageSize,
+            To = PageNumber * PageSize
         };
         var result = await queryHandler.Handle(findUsersQuery, PageNumber);
         users = result; // Assuming the result is a paginated response with 'Items' property containing users

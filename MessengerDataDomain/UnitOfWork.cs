@@ -1,52 +1,75 @@
-﻿using DataDomain.Repositories;
-
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MessengerInfrastructure;
+using DataDomain.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace MessengerInfrastructure
 {
-	public class UnitOfWork : IUnitOfWork
-	{
-		private readonly MessengerDbContext _context;
-		private readonly Dictionary<Type, object> repositories = new Dictionary<Type, object>();
+    public class UnitOfWork : IUnitOfWork, IDisposable
+    {
+        private readonly MessengerDbContext _context;
+        private readonly Dictionary<Type, object> _commandRepositories = new Dictionary<Type, object>();
+        private readonly Dictionary<Type, object> _queryRepositories = new Dictionary<Type, object>();
 
-		public UnitOfWork(MessengerDbContext context)
-		{
-			_context = context;
-		}
-		public ICommandRepository<TEntity> GetCommandRepository<TEntity>() where TEntity : class
-		{
-			var entityType = typeof(TEntity);
-			if (!repositories.ContainsKey(entityType))
-			{
-				var repositoryType = typeof(ICommandRepository<>).MakeGenericType(entityType);
-				var repositoryInstance = Activator.CreateInstance(repositoryType, _context);
-				repositories.Add(entityType, repositoryInstance);
-			}
+        public UnitOfWork(MessengerDbContext context)
+        {
+            _context = context;
+            InitializeRepositories();
+        }
 
-			return (ICommandRepository<TEntity>)repositories[entityType];
-		}
+        private void InitializeRepositories()
+        {
+            var repositoryTypes = typeof(UnitOfWork).Assembly.GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract &&
+                             t.GetInterfaces().Any(i => i.IsGenericType &&
+                                                        (i.GetGenericTypeDefinition() == typeof(ICommandRepository<>) ||
+                                                         i.GetGenericTypeDefinition() == typeof(IQueryRepository<>))))
+                .ToList();
 
+            foreach (var repositoryType in repositoryTypes)
+            {
+                var interfaces = repositoryType.GetInterfaces()
+                    .Where(i => i.IsGenericType &&
+                                (i.GetGenericTypeDefinition() == typeof(ICommandRepository<>) ||
+                                 i.GetGenericTypeDefinition() == typeof(IQueryRepository<>)))
+                    .ToList();
 
-		public IQueryRepository<TEntity> GetQueryRepository<TEntity>() where TEntity : class
-		{
-			var entityType = typeof(TEntity);
-			if (!repositories.ContainsKey(entityType))
-			{
-				var repositoryType = typeof(IQueryRepository<>).MakeGenericType(entityType);
-				var repositoryInstance = Activator.CreateInstance(repositoryType, _context);
-				repositories.Add(entityType, repositoryInstance);
-			}
+                foreach (var @interface in interfaces)
+                {
+                    var entityType = @interface.GetGenericArguments()[0];
+                    if (@interface.GetGenericTypeDefinition() == typeof(ICommandRepository<>))
+                    {
+                        _commandRepositories.Add(entityType, Activator.CreateInstance(repositoryType, _context));
+                    }
+                    else if (@interface.GetGenericTypeDefinition() == typeof(IQueryRepository<>))
+                    {
+                        _queryRepositories.Add(entityType, Activator.CreateInstance(repositoryType, _context));
+                    }
+                }
+            }
+        }
 
-			return (IQueryRepository<TEntity>)repositories[entityType];
-		}
+        public ICommandRepository<TEntity> GetCommandRepository<TEntity>() where TEntity : class
+        {
+            return (ICommandRepository<TEntity>)_commandRepositories[typeof(TEntity)];
+        }
 
-		public async Task SaveChangesAsync()
-		{
-			await _context.SaveChangesAsync();
-		}
+        public IQueryRepository<TEntity> GetQueryRepository<TEntity>() where TEntity : class
+        {
+            return (IQueryRepository<TEntity>)_queryRepositories[typeof(TEntity)];
+        }
 
-		public void Dispose()
-		{
-			_context.Dispose();
-		}
-	}
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public void Dispose()
+        {
+            _context.Dispose();
+        }
+    }
 }

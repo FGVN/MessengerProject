@@ -1,12 +1,9 @@
-﻿using MessengerDataAccess.Repositories;
-
-namespace DataDomain.Repositories
+﻿namespace DataDomain.Repositories
 {
-	public interface IQueryRepository<TEntity> : IRepository
+	public interface IQueryRepository<TEntity> 
 	{
 		Task<IEnumerable<TEntity>> GetAllAsync();
 		Task<TEntity> GetByIdAsync(int id);
-		// Add additional query methods here if needed
 	}
 }
 

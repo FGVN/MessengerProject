@@ -1,57 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using DataAccess.Models.Users;
+﻿using DataAccess.Models.Users;
 using DataDomain.Users;
-using FluentValidation;
-using Microsoft.AspNetCore.Identity;
 
-namespace MessengerInfrastructure.Services.QueryHandlers
+namespace MessengerInfrastructure.Services
 {
-    public class UserMenuQueryHandler
+    public class UserMenuQueryHandler : QueryHandlerBase<User, UserMenuItemDTO>
     {
-        private readonly UserManager<User> _userManager;
+        public UserMenuQueryHandler(IUnitOfWork unitOfWork) : base(unitOfWork) { }
 
-        public UserMenuQueryHandler(UserManager<User> userManager)
+        public override async Task<IEnumerable<UserMenuItemDTO>> GetAllAsync()
         {
-            _userManager = userManager;
-        }
-
-        public async Task<IEnumerable<UserMenuItemDTO>> GetUsersAsync()
-        {
-            var users = _userManager.Users.ToList();
+            var userRepository = _unitOfWork.GetQueryRepository<User>();
+            var users = await userRepository.GetAllAsync();
             return users.Select(x => new UserMenuItemDTO { Username = x.UserName, Email = x.Email });
         }
-
-        public async Task<IEnumerable<UserMenuItemDTO>> SearchUsersAsync(SearchUsersQuery query)
+        public override Task<IEnumerable<object>> SearchAsync(SearchQuery<UserMenuItemDTO> query)
         {
-            var validator = new SearchUsersQueryValidator(); // FluentValidation validator instance
-            validator.ValidateAndThrow(query); // Validate query parameters
+            return base.SearchAsync(query);
+        }
 
-            var users = _userManager.Users.Where(x => x.UserName.Contains(query.Query)).ToList();
-
-            // Sorting
-            if (!string.IsNullOrEmpty(query.SortBy))
-            {
-                var propertyInfo = typeof(User).GetProperty(query.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (propertyInfo != null)
-                {
-                    users = query.SortDirection.ToLower() == "asc" ?
-                        users.OrderBy(u => propertyInfo.GetValue(u)).ToList() :
-                        users.OrderByDescending(u => propertyInfo.GetValue(u)).ToList();
-                }
-                else
-                {
-                    throw new ArgumentException($"Invalid SortBy option: {query.SortBy}");
-                }
-            }
-
-            // Pagination
-            var from = query.From;
-            var to = query.To < users.Count ? query.To : users.Count;
-            return users.GetRange(from, to - from).Select(x => new UserMenuItemDTO { Username = x.UserName, Email = x.Email });
+        protected override IEnumerable<string> GetFilterProperties(User entity)
+        {
+            return new List<string> { entity.UserName, entity.Email };
         }
     }
 }
