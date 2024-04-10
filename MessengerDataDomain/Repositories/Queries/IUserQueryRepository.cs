@@ -2,6 +2,7 @@
 using MessengerInfrastructure;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace DataDomain.Repositories
@@ -18,13 +19,13 @@ namespace DataDomain.Repositories
 		{
 			_context = context;
 		}
+        public async Task<IEnumerable<User>> GetAllAsync(Expression<Func<User, bool>> predicate)
+        {
+            var dbContext = _context;
+            return await dbContext.Set<User>().Where(predicate).ToListAsync();
+        }
 
-		public async Task<IEnumerable<User>> GetAllAsync()
-		{
-			return await _context.Users.ToListAsync();
-		}
-
-		public async Task<User> GetByIdAsync(int id)
+        public async Task<User> GetByIdAsync(int id)
 		{
 			return await _context.Users.FindAsync(id);
 		}

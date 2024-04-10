@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 using FluentValidation;
-using DataAccess.Models.Users;
-using DataDomain.Users;
 
 namespace MessengerInfrastructure.Services
 {
@@ -20,25 +15,27 @@ namespace MessengerInfrastructure.Services
         {
             _unitOfWork = unitOfWork;
         }
-
-        public abstract Task<IEnumerable<TDTO>> GetAllAsync();
-
+        public async Task<IEnumerable<TEntity>> GetAllAsync<TEntity>(Expression<Func<TEntity, bool>> predicate) where TEntity : class
+        {
+            var dbContext = _unitOfWork.Context;
+            return dbContext.Set<TEntity>().Where(predicate).ToList();
+        }
+        protected abstract IEnumerable<string> GetFilterProperties(TEntity entity);
         public virtual async Task<IEnumerable<object>> SearchAsync(SearchQuery<TDTO> query)
         {
             var validator = new SearchQueryValidator<TDTO>();
             validator.ValidateAndThrow(query);
 
             var userRepository = _unitOfWork.GetQueryRepository<TEntity>();
-            var users = await userRepository.GetAllAsync();
 
-            if (!string.IsNullOrEmpty(query.Query))
-            {
-                users = FilterEntities(users, query.Query);
-            }
+            var filterProperties = GetFilterProperties();
 
+            var userPredicate = FilterEntities(filterProperties, query.Query);
+
+            var sortedUsers = await userRepository.GetAllAsync(userPredicate);
             if (!string.IsNullOrEmpty(query.SortBy))
             {
-                users = SortEntities(users, query.SortBy, query.SortDirection);
+                sortedUsers = SortEntities(sortedUsers, query.SortBy, query.SortDirection);
             }
 
             var propertiesToRetrieve = query.PropertiesToRetrieve != null && query.PropertiesToRetrieve.Any() ?
@@ -49,7 +46,9 @@ namespace MessengerInfrastructure.Services
 
             var dtoProperties = typeof(TDTO).GetProperties().Select(p => p.Name.ToLower()).ToList();
 
-            var dynamicObjects = PaginateEntities(users, query.From, query.To)
+            var dynamicObjects = sortedUsers
+                .Skip(query.From)
+                .Take(query.To - query.From)
                 .Select(user =>
                 {
                     var dynamicObject = Activator.CreateInstance(dynamicType);
@@ -71,17 +70,37 @@ namespace MessengerInfrastructure.Services
             return dynamicObjects;
         }
 
-        protected IEnumerable<TEntity> FilterEntities(IEnumerable<TEntity> entities, string query)
+
+        protected Expression<Func<TEntity, bool>> FilterEntities(IEnumerable<string> properties, string query)
         {
-            var lowercaseQuery = query.ToLower();
-            return entities.Where(x =>
-                GetFilterProperties(x).Any(prop =>
-                    prop.ToLower().Contains(lowercaseQuery)
-                )
-            );
+            if (string.IsNullOrEmpty(query) || !properties.Any())
+            {
+                return _ => true; 
+            }
+            else
+            {
+                var parameter = Expression.Parameter(typeof(TEntity), "x");
+                var queryToLower = Expression.Constant(query.ToLower());
+
+                var propertyExpressions = properties.Select(prop =>
+                {
+                    var propertyAccess = Expression.Property(parameter, prop);
+                    var propertyToLower = Expression.Call(propertyAccess, "ToLower", null);
+                    return Expression.Call(propertyToLower, "Contains", null, queryToLower);
+                });
+
+                var body = propertyExpressions.Aggregate<Expression, Expression>(null, (current, propertyExpression) =>
+                    current == null ? propertyExpression : Expression.OrElse(current, propertyExpression));
+
+                return Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+            }
+        }
+        protected IEnumerable<string> GetFilterProperties()
+        {
+            var properties = typeof(TDTO).GetProperties();
+            return properties.Select(prop => prop.Name);
         }
 
-        protected abstract IEnumerable<string> GetFilterProperties(TEntity entity);
 
         protected IEnumerable<TEntity> SortEntities(IEnumerable<TEntity> entities, string sortBy, string sortDirection)
         {
@@ -110,7 +129,6 @@ namespace MessengerInfrastructure.Services
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
             var typeBuilder = moduleBuilder.DefineType("DynamicType", TypeAttributes.Public);
 
-            // Define properties based on the propertiesToRetrieve list
             var dtoProperties = dtoType.GetProperties().Select(p => p.Name.ToLower()).ToList();
             if (propertiesToRetrieve != null)
             {

@@ -8,10 +8,15 @@
         <SurveyPrompt Title="How is Blazor working for you?" />
     </NotAuthorized>
     <Authorized>
+
         <form @onsubmit="HandleSearch">
             <MatTextField TValue="string" @bind-Value="Query" Label="Search" Dense="true" />
+            <MatTextField TValue="string" @bind-Value="SortBy" Label="Sort By" Dense="true" />
+            <MatTextField TValue="string" @bind-Value="SortDirection" Label="Sort Direction" Dense="true" />
+            <MatTextField TValue="string" @bind-Value="PropertiesToGet" Label="Properties to Retrieve" Dense="true" />
             <MatButton Type="submit" Raised="true" Dense="true">Search</MatButton>
         </form>
+
         <MatTable Items="@users">
             <MatTableHeader>
                 <th>Username</th>
@@ -28,6 +33,9 @@
 
 @code {
     private string Query { get; set; }
+    private string SortBy { get; set; }
+    private string SortDirection { get; set; }
+    private string PropertiesToGet { get; set; }
     private IEnumerable<UserMenuItem> users;
     private int PageNumber = 1;
     private int totalUsersCount;
@@ -44,10 +52,11 @@
         var findUsersQuery = new FindUsersQuery
         {
             Query = Query,
-            SortBy = "username",
-            SortDirection = "asc",
+            SortBy = SortBy,
+            SortDirection = SortDirection,
             From = (PageNumber - 1) * PageSize,
-            To = PageNumber * PageSize
+            To = PageNumber * PageSize,
+            PropertiesToRetrieve = string.IsNullOrWhiteSpace(PropertiesToGet) ? null : PropertiesToGet.Split(',').Select(p => p.Trim())
         };
         var result = await queryHandler.Handle(findUsersQuery, PageNumber);
         users = result; // Assuming the result is a paginated response with 'Items' property containing users

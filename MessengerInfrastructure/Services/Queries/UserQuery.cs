@@ -14,7 +14,7 @@ namespace MessengerInfrastructure.Services
 
 		public async Task<IEnumerable<User>> GetAllUsersAsync()
 		{
-			var users = await _unitOfWork.GetQueryRepository<User>().GetAllAsync();
+			var users = await _unitOfWork.GetQueryRepository<User>().GetAllAsync(x => true);
 			return users;
 		}
 

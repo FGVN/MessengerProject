@@ -17,6 +17,9 @@ public class FindUsersQueryHandler
         _jsRuntime = jsRuntime;
     }
 
+    //With auth
+    //var jwtToken = await GetJwtTokenFromLocalStorage();
+    //return await _httpWrapper.PostAsync<FindUsersQuery, IEnumerable<UserMenuItem>>(url, query, jwtToken);
     public async Task<IEnumerable<UserMenuItem>> Handle(FindUsersQuery query, int PageNumber)
     {
         try
@@ -24,12 +27,20 @@ public class FindUsersQueryHandler
             var startIndex = (PageNumber - 1) * ItemsPerPage;
             var endIndex = startIndex + ItemsPerPage - 1;
 
-            var url = $"https://localhost:7287/api/UserMenu/users/search";
+            var url = $"https://localhost:7287/api/Query/users/search";
 
-            //With auth
-            //var jwtToken = await GetJwtTokenFromLocalStorage();
-            //return await _httpWrapper.PostAsync<FindUsersQuery, IEnumerable<UserMenuItem>>(url, query, jwtToken);
-            return await _httpWrapper.PostAsync<FindUsersQuery, IEnumerable<UserMenuItem>>(url, query);
+            // Modify the query object to include propertiesToGet
+            var updatedQuery = new FindUsersQuery
+            {
+                Query = query.Query,
+                SortBy = query.SortBy,
+                SortDirection = query.SortDirection,
+                From = query.From,
+                To = query.To,
+                PropertiesToRetrieve = query.PropertiesToRetrieve
+            };
+
+            return await _httpWrapper.PostAsync<FindUsersQuery, IEnumerable<UserMenuItem>>(url, updatedQuery);
         }
         catch (Exception ex)
         {
@@ -38,6 +49,7 @@ public class FindUsersQueryHandler
             return Enumerable.Empty<UserMenuItem>();
         }
     }
+
 
     private async Task<string> GetJwtTokenFromLocalStorage()
     {

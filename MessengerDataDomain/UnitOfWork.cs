@@ -11,6 +11,7 @@ namespace MessengerInfrastructure
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private readonly MessengerDbContext _context;
+        public DbContext Context => _context;
         private readonly Dictionary<Type, object> _commandRepositories = new Dictionary<Type, object>();
         private readonly Dictionary<Type, object> _queryRepositories = new Dictionary<Type, object>();
 
