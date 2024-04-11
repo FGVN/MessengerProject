@@ -69,32 +69,51 @@ namespace MessengerInfrastructure.Services
 
             return dynamicObjects;
         }
-
-
         protected Expression<Func<TEntity, bool>> FilterEntities(IEnumerable<string> properties, string query)
         {
             if (string.IsNullOrEmpty(query) || !properties.Any())
             {
-                return _ => true; 
+                return _ => true;
             }
             else
             {
                 var parameter = Expression.Parameter(typeof(TEntity), "x");
                 var queryToLower = Expression.Constant(query.ToLower());
 
-                var propertyExpressions = properties.Select(prop =>
+                var propertyExpressions = properties.Select<string, Expression<Func<TEntity, bool>>>(prop =>
                 {
                     var propertyAccess = Expression.Property(parameter, prop);
-                    var propertyToLower = Expression.Call(propertyAccess, "ToLower", null);
-                    return Expression.Call(propertyToLower, "Contains", null, queryToLower);
+                    Expression propertyToLower;
+                    if (propertyAccess.Type == typeof(string))
+                    {
+                        propertyToLower = Expression.Call(propertyAccess, "ToLower", null);
+                    }
+                    else
+                    {
+                        var toStringMethod = propertyAccess.Type.GetMethod("ToString", Type.EmptyTypes);
+                        propertyToLower = Expression.Call(propertyAccess, toStringMethod);
+                    }
+
+                    return Expression.Lambda<Func<TEntity, bool>>(Expression.Call(propertyToLower, "Contains", null, queryToLower), parameter);
                 });
 
-                var body = propertyExpressions.Aggregate<Expression, Expression>(null, (current, propertyExpression) =>
-                    current == null ? propertyExpression : Expression.OrElse(current, propertyExpression));
+                var body = propertyExpressions.Aggregate<Expression<Func<TEntity, bool>>, Expression>(null, (current, propertyExpression) =>
+                {
+                    if (current == null)
+                    {
+                        return propertyExpression.Body;
+                    }
+                    else
+                    {
+                        var orElse = Expression.OrElse(current, propertyExpression.Body);
+                        return Expression.Lambda<Func<TEntity, bool>>(orElse, parameter).Body;
+                    }
+                });
 
                 return Expression.Lambda<Func<TEntity, bool>>(body, parameter);
             }
         }
+
         protected IEnumerable<string> GetFilterProperties()
         {
             var properties = typeof(TDTO).GetProperties();

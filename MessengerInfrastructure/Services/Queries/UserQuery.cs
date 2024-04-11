@@ -18,7 +18,7 @@ namespace MessengerInfrastructure.Services
 			return users;
 		}
 
-		public async Task<User> GetUserByIdAsync(int userId)
+		public async Task<User> GetUserByIdAsync(string userId)
 		{
 			var user = await _unitOfWork.GetQueryRepository<User>().GetByIdAsync(userId);
 			return user;

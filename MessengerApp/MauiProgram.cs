@@ -2,9 +2,6 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MessengerApp.Services;
-using System;
-using System.Net.Http;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 using MatBlazor;
 
@@ -47,12 +44,17 @@ namespace MessengerApp
             builder.Services.AddScoped<LoginUserCommandHandler>();
             builder.Services.AddScoped<FindUsersQueryHandler>();
 
+            builder.Services.AddScoped<FindChatsQueryHandler>();
+
+            builder.Services.AddScoped<FindChatMessageQueryHandler>();
+
+
             // Register MatBlazor services
             builder.Services.AddMatBlazor();
 
-#if DEBUG
-            builder.Services.AddBlazorWebViewDeveloperTools();
-#endif
+            #if DEBUG
+                builder.Services.AddBlazorWebViewDeveloperTools();
+            #endif
 
             return builder.Build();
         }

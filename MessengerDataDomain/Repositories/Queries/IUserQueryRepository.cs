@@ -25,7 +25,7 @@ namespace DataDomain.Repositories
             return await dbContext.Set<User>().Where(predicate).ToListAsync();
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<User> GetByIdAsync(string id)
 		{
 			return await _context.Users.FindAsync(id);
 		}

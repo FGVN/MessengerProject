@@ -51,6 +51,13 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 
 builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
 builder.Services.AddScoped<IUserCommandRepository, UserCommandRepository>();
+
+builder.Services.AddScoped<IChatMessageQueryRepository, ChatMessageQueryRepository>();
+builder.Services.AddScoped<IChatMessageCommandRepository, ChatMessageCommandRepository>();
+
+builder.Services.AddScoped<IUserChatQueryRepository, UserChatQueryRepository>();
+builder.Services.AddScoped<IUserChatCommandRepository, UserChatCommandRepository>();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<UserManager<User>>();
@@ -63,7 +70,13 @@ builder.Services.Configure<JwtTokenOptions>(builder.Configuration.GetSection("Jw
 
 builder.Services.AddScoped<RegisterUserCommandHandler>();
 builder.Services.AddScoped<LoginUserCommandHandler>();
-builder.Services.AddScoped<UserMenuQueryHandler>();
+builder.Services.AddScoped<UserQueryHandler>();
+
+builder.Services.AddScoped<CreateChatCommandHandler>();
+builder.Services.AddScoped<ChatMessageQueryHandler>();
+
+builder.Services.AddScoped<SendMessageCommandHandler>();
+builder.Services.AddScoped<UserChatQueryHandler>();
 
 var app = builder.Build();
 

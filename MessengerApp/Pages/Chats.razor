@@ -1,0 +1,78 @@
+﻿@page "/chats"
+@inject FindChatsQueryHandler queryHandler
+@inject NavigationManager navigationManager
+
+<AuthorizeView>
+    <Authorized>
+        <form @onsubmit="HandleSearch">
+            <MatTextField TValue="string" @bind-Value="Query" Label="Search" Dense="true" />
+            <MatTextField TValue="string" @bind-Value="SortBy" Label="Sort By" Dense="true" />
+            <MatTextField TValue="string" @bind-Value="SortDirection" Label="Sort Direction" Dense="true" />
+            <MatTextField TValue="string" @bind-Value="PropertiesToGet" Label="Properties to Retrieve" Dense="true" />
+            <MatButton Type="submit" Raised="true" Dense="true">Search</MatButton>
+        </form>
+
+        <MatTable Items="@chats">
+            <MatTableHeader>
+                <th>ChatId</th>
+                <th>Username</th>
+                <th>ContactUsername</th>
+            </MatTableHeader>
+            <MatTableRow Context="tableRowContext">
+                <td>@tableRowContext.ChatId</td>
+                <td>@tableRowContext.Username</td>
+                <td>@tableRowContext.ContactUsername</td>
+                <td><MatButton OnClick="@(() => NavigateToChat(tableRowContext.ChatId))">View Messages</MatButton></td>
+            </MatTableRow>
+        </MatTable>
+
+        <MatPagination TotalItems="totalChatsCount" PageSize="PageSize" CurrentPage="PageNumber" OnPageChange="HandlePageChange" />
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private string Query { get; set; }
+    private string SortBy { get; set; }
+    private string SortDirection { get; set; }
+    private string PropertiesToGet { get; set; }
+    private IEnumerable<ChatMenuItem> chats;
+    private int PageNumber = 1;
+    private int totalChatsCount;
+    private const int PageSize = 10;
+
+    private async Task HandleSearch()
+    {
+        PageNumber = 1;
+        await LoadChats();
+    }
+
+    private async Task LoadChats()
+    {
+        var findChatsQuery = new FindChatsQuery
+        {
+            Query = Query,
+            SortBy = SortBy,
+            SortDirection = SortDirection,
+            From = (PageNumber - 1) * PageSize,
+            To = PageNumber * PageSize,
+            PropertiesToRetrieve = string.IsNullOrWhiteSpace(PropertiesToGet) ? null : PropertiesToGet.Split(',').Select(p => p.Trim())
+        };
+        var result = await queryHandler.Handle(findChatsQuery, PageNumber);
+        chats = result;
+        totalChatsCount = result.Count();
+        StateHasChanged();
+    }
+
+    private async Task HandlePageChange(int newPageIndex)
+    {
+        PageNumber = newPageIndex + 1;
+        await LoadChats();
+    }
+    private void NavigateToChat(Guid chatId)
+    {
+        navigationManager.NavigateTo($"/chats/{chatId}");
+    }
+
+
+
+}

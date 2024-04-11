@@ -5,6 +5,6 @@ namespace DataDomain.Repositories
     public interface IQueryRepository<TEntity>
     {
         Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate);
-        Task<TEntity> GetByIdAsync(int id);
+        Task<TEntity> GetByIdAsync(string id);
     }
 }

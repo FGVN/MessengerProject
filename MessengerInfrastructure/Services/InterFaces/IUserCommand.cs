@@ -2,9 +2,10 @@
 
 namespace MessengerInfrastructure.Services.InterFaces
 {
-	public interface IUserCommand
+    public interface IUserCommand
     {
         Task RegisterUserAsync(RegisterUserDTO registerUserDto);
         Task DeleteUserAsync(User user);
     }
 }
+

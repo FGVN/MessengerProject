@@ -1,0 +1,44 @@
+﻿@page "/chats/{chatId}"
+@inject FindChatMessageQueryHandler messageQueryHandler
+
+<AuthorizeView>
+    <Authorized>
+        <MatTable Items="@messages">
+            <MatTableHeader>
+                <th>Sender</th>
+                <th>Message</th>
+                <th>Timestamp</th> 
+            </MatTableHeader>
+            <MatTableRow Context="tableRowContext">
+                <td>@tableRowContext.SenderId</td>
+                <td>@tableRowContext.Message</td>
+                <td>@tableRowContext.TimeStamp.ToString("MM/dd/yyyy HH:mm:ss")</td> 
+            </MatTableRow>
+        </MatTable>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public string ChatId { get; set; }
+
+    private IEnumerable<ChatMessage> messages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMessages();
+    }
+
+    private async Task LoadMessages()
+    {
+        try
+        {
+            messages = await messageQueryHandler.Handle(new Guid(ChatId));
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"Error loading messages: {ex.Message}");
+        }
+    }
+}
