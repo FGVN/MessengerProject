@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MessengerDataAccess.Models.Messages
 {
-    public class SendMessageDTO
+    public class EditMessageDTO
     {
-        public Guid ChatId { get; set; }
+        public int Id { get; set; }
         public string Message { get; set; }
     }
 }

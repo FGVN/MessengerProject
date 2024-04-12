@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace MessengerInfrastructure.Services
 {
@@ -15,12 +16,16 @@ namespace MessengerInfrastructure.Services
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<IEnumerable<TEntity>> GetAllAsync<TEntity>(Expression<Func<TEntity, bool>> predicate) where TEntity : class
+
+        public virtual IQueryable<TEntity> GetAllQueryable(Expression<Func<TEntity, bool>> predicate = null)
         {
             var dbContext = _unitOfWork.Context;
-            return dbContext.Set<TEntity>().Where(predicate).ToList();
+            var queryable = dbContext.Set<TEntity>().AsQueryable();
+            return predicate != null ? queryable.Where(predicate) : queryable;
         }
+
         protected abstract IEnumerable<string> GetFilterProperties(TEntity entity);
+
         public virtual async Task<IEnumerable<object>> SearchAsync(SearchQuery<TDTO> query)
         {
             var validator = new SearchQueryValidator<TDTO>();
@@ -32,10 +37,12 @@ namespace MessengerInfrastructure.Services
 
             var userPredicate = FilterEntities(filterProperties, query.Query);
 
-            var sortedUsers = await userRepository.GetAllAsync(userPredicate);
+            var queryable = userRepository.GetAllQueryable(userPredicate);
+
+            // Apply sorting if SortBy is specified
             if (!string.IsNullOrEmpty(query.SortBy))
             {
-                sortedUsers = SortEntities(sortedUsers, query.SortBy, query.SortDirection);
+                queryable = SortEntities(queryable, query.SortBy, query.SortDirection);
             }
 
             var propertiesToRetrieve = query.PropertiesToRetrieve != null && query.PropertiesToRetrieve.Any() ?
@@ -46,7 +53,7 @@ namespace MessengerInfrastructure.Services
 
             var dtoProperties = typeof(TDTO).GetProperties().Select(p => p.Name.ToLower()).ToList();
 
-            var dynamicObjects = sortedUsers
+            var dynamicObjects = queryable.ToList()
                 .Skip(query.From)
                 .Take(query.To - query.From)
                 .Select(user =>
@@ -69,6 +76,7 @@ namespace MessengerInfrastructure.Services
 
             return dynamicObjects;
         }
+
         protected Expression<Func<TEntity, bool>> FilterEntities(IEnumerable<string> properties, string query)
         {
             if (string.IsNullOrEmpty(query) || !properties.Any())
@@ -120,15 +128,16 @@ namespace MessengerInfrastructure.Services
             return properties.Select(prop => prop.Name);
         }
 
-
-        protected IEnumerable<TEntity> SortEntities(IEnumerable<TEntity> entities, string sortBy, string sortDirection)
+        protected IQueryable<TEntity> SortEntities(IQueryable<TEntity> queryable, string sortBy, string sortDirection)
         {
-            var propertyInfo = typeof(TEntity).GetProperty(sortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var propertyInfo = typeof(TEntity).GetProperties()
+                .FirstOrDefault(p => string.Equals(p.Name, sortBy, StringComparison.OrdinalIgnoreCase));
+
             if (propertyInfo != null)
             {
                 return sortDirection.ToLower() == "asc" ?
-                    entities.OrderBy(u => propertyInfo.GetValue(u)) :
-                    entities.OrderByDescending(u => propertyInfo.GetValue(u));
+                    queryable.OrderBy(u => EF.Property<object>(u, propertyInfo.Name)) :
+                    queryable.OrderByDescending(u => EF.Property<object>(u, propertyInfo.Name));
             }
             else
             {

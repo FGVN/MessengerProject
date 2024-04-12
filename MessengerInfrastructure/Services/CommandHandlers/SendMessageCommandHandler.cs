@@ -11,14 +11,14 @@ namespace MessengerInfrastructure.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<int> Handle(SendMessageDTO messageDto)
+        public async Task<int> Handle(string senderId, SendMessageDTO messageDto)
         {
             var chatMessageRepository = _unitOfWork.GetCommandRepository<ChatMessage>();
 
             var chatMessage = new ChatMessage
             {
                 ChatId = messageDto.ChatId,
-                SenderId = messageDto.SenderId,
+                SenderId = senderId,
                 Message = messageDto.Message,
                 Timestamp = DateTime.UtcNow
             };

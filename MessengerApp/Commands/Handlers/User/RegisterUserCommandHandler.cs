@@ -29,11 +29,11 @@ public class RegisterUserCommandHandler
                 Password = command.Password
             };
 
-            string jwtToken = await _httpWrapper.PostAsync<RegisterUserCommand, string>("https://localhost:7287/api/Users/register", requestBody);
+            string token = (await _httpWrapper.PostAsync<RegisterUserCommand, TokenResponse>("https://localhost:7287/api/Users/login", requestBody)).Token;
 
-            var user = await _authService.RegisterAndLoginAsync(new User { JwtToken = jwtToken });
+            var user = await _authService.RegisterAndLoginAsync(new User { JwtToken = token });
 
-            ((AuthStateProvider)_authStateProvider).SetAuthenticatedUser(user.User, jwtToken);
+            await ((AuthStateProvider)_authStateProvider).SetAuthenticatedUserAsync(user.User, token);
             _navigationManager.NavigateTo("/");
         }
         catch (Exception ex)

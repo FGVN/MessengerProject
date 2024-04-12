@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 public class FindChatsQueryHandler
 {
     private readonly HttpWrapper _httpWrapper;
-    private readonly IJSRuntime _jsRuntime;
+    private readonly LocalStorageUtils _localStorageUtils;
 
     public static int ItemsPerPage = 10;
 
-    public FindChatsQueryHandler(HttpWrapper httpWrapper, IJSRuntime jsRuntime)
+    public FindChatsQueryHandler(HttpWrapper httpWrapper, LocalStorageUtils localStorageUtils)
     {
         _httpWrapper = httpWrapper;
-        _jsRuntime = jsRuntime;
+        _localStorageUtils = localStorageUtils;
     }
 
     public async Task<IEnumerable<ChatMenuItem>> Handle(FindChatsQuery query, int PageNumber)
@@ -24,7 +24,7 @@ public class FindChatsQueryHandler
             var startIndex = (PageNumber - 1) * ItemsPerPage;
             var endIndex = startIndex + ItemsPerPage - 1;
 
-            var url = $"https://localhost:7287/api/Query/userchats/search";
+            var url = $"https://localhost:7287/api/Chats/userchats/search";
 
             var updatedQuery = new FindChatsQuery
             {
@@ -36,32 +36,14 @@ public class FindChatsQueryHandler
                 PropertiesToRetrieve = query.PropertiesToRetrieve
             };
 
-            return await _httpWrapper.PostAsync<FindChatsQuery, IEnumerable<ChatMenuItem>>(url, updatedQuery);
+            var token = await _localStorageUtils.GetJwtTokenFromLocalStorage();
+            return await _httpWrapper.PostAsync<FindChatsQuery, IEnumerable<ChatMenuItem>>(
+                url, updatedQuery, token);
         }
         catch (Exception ex)
         {
             // Handle exception
             return Enumerable.Empty<ChatMenuItem>();
         }
-    }
-
-    private async Task<UserMenuItem> GetUserById(string userId)
-    {
-        try
-        {
-            var url = $"https://localhost:7287/api/Users/{userId}"; 
-            var jwtToken = await GetJwtTokenFromLocalStorage(); 
-            return await _httpWrapper.GetAsync<UserMenuItem>(url);
-        }
-        catch (Exception ex)
-        {
-            // Handle exception
-            return null;
-        }
-    }
-
-    private async Task<string> GetJwtTokenFromLocalStorage()
-    {
-        return await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "jwtToken");
     }
 }

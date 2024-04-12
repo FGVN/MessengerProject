@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace MessengerApp.Services;
 
-public class AuthService 
+public class AuthService
 {
 	private ClaimsPrincipal currentUser = new ClaimsPrincipal(new ClaimsIdentity());
 
@@ -14,7 +14,6 @@ public class AuthService
 		var authenticatedUser = await RegisterUserAsync(user);
 
 		currentUser = authenticatedUser;
-
 
 		return new AuthenticationState(currentUser);
 	}
@@ -45,9 +44,10 @@ public class AuthService
 
 		return Task.FromResult(authenticatedUser);
 	}
-    public void Logout()
+    public async Task<AuthenticationState> Logout()
     {
         currentUser = new ClaimsPrincipal(new ClaimsIdentity());
+        return new AuthenticationState(currentUser);
     }
 
 }

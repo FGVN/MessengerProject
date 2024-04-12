@@ -8,6 +8,8 @@ using MessengerInfrastructure.Utilities;
 using Microsoft.AspNetCore.Identity;
 using DataDomain.Users;
 using DataDomain.Repositories;
+using Microsoft.OpenApi.Models;
+using MessengerInfrastructure.CommandHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,8 +41,39 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddEndpointsApiExplorer(); 
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+    option.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            In = ParameterLocation.Header,
+            Description = "Please enter a valid token",
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            BearerFormat = "JWT",
+            Scheme = "Bearer"
+        }
+    );
+    option.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] { }
+            }
+        }
+    );
+});
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
@@ -73,24 +106,28 @@ builder.Services.AddScoped<LoginUserCommandHandler>();
 builder.Services.AddScoped<UserQueryHandler>();
 
 builder.Services.AddScoped<CreateChatCommandHandler>();
+builder.Services.AddScoped<DeleteChatCommandHandler>();
 builder.Services.AddScoped<ChatMessageQueryHandler>();
 
 builder.Services.AddScoped<SendMessageCommandHandler>();
+builder.Services.AddScoped<DeleteMessageCommandHandler>();
+builder.Services.AddScoped<EditMessageCommandHandler>();
 builder.Services.AddScoped<UserChatQueryHandler>();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 
 app.Run();
 

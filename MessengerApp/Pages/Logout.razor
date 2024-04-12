@@ -1,10 +1,10 @@
 ﻿@page "/logout"
-
 @inject LogoutUserCommandHandler logoutHandler
+
 
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await logoutHandler.ExecuteAsync();
+        await logoutHandler.Handle();
     }
 }

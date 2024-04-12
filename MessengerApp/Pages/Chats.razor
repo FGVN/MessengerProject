@@ -1,5 +1,6 @@
 ﻿@page "/chats"
 @inject FindChatsQueryHandler queryHandler
+@inject DeleteChatCommandHandler deleteChatHandler
 @inject NavigationManager navigationManager
 
 <AuthorizeView>
@@ -17,12 +18,16 @@
                 <th>ChatId</th>
                 <th>Username</th>
                 <th>ContactUsername</th>
+                <th>Actions</th> <!-- New column for delete button -->
             </MatTableHeader>
             <MatTableRow Context="tableRowContext">
                 <td>@tableRowContext.ChatId</td>
                 <td>@tableRowContext.Username</td>
                 <td>@tableRowContext.ContactUsername</td>
-                <td><MatButton OnClick="@(() => NavigateToChat(tableRowContext.ChatId))">View Messages</MatButton></td>
+                <td>
+                    <MatButton OnClick="@(() => NavigateToChat(tableRowContext.ChatId))">View Messages</MatButton>
+                    <MatButton OnClick="@(() => DeleteChat(tableRowContext.ChatId))">Delete</MatButton> <!-- New delete button -->
+                </td>
             </MatTableRow>
         </MatTable>
 
@@ -73,6 +78,19 @@
         navigationManager.NavigateTo($"/chats/{chatId}");
     }
 
-
-
+    private async Task DeleteChat(Guid chatId)
+    {
+        try
+        {
+            // Call the delete chat handler to delete the chat
+            await deleteChatHandler.Handle(chatId);
+            // Reload chats after deletion
+            await LoadChats();
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"Error deleting chat: {ex.Message}");
+        }
+    }
 }

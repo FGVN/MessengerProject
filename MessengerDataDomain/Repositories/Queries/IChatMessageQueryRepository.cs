@@ -1,11 +1,7 @@
 ﻿using MessengerDataAccess.Models.Messages;
 using MessengerInfrastructure;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace DataDomain.Repositories
 {
@@ -21,15 +17,22 @@ namespace DataDomain.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<ChatMessage>> GetAllAsync(Expression<Func<ChatMessage, bool>> predicate)
+        public async Task<IQueryable<ChatMessage>> GetAllAsync(Expression<Func<ChatMessage, bool>> predicate)
         {
             var dbContext = _context;
-            return await dbContext.Set<ChatMessage>().Where(predicate).ToListAsync();
+            return dbContext.Set<ChatMessage>().Where(predicate);
+        }
+
+        public IQueryable<ChatMessage> GetAllQueryable(Expression<Func<ChatMessage, bool>> predicate)
+        {
+            var queryable = _context.Set<ChatMessage>().AsQueryable();
+
+            return predicate != null ? queryable.Where(predicate) : queryable;
         }
 
         public async Task<ChatMessage> GetByIdAsync(string id)
         {
-            return await _context.ChatMessages.FindAsync(id);
+            return await _context.ChatMessages.FindAsync(int.Parse(id));
         }
     }
 }

@@ -14,11 +14,12 @@ public class LogoutUserCommandHandler
         _navigationManager = navigationManager;
     }
 
-    public async Task ExecuteAsync()
+    public async Task Handle()
     {
-        await _authStateProvider.ClearAuthenticationStateAsync();
 
-        _authService.Logout();
+        await _authService.Logout();
+
+        await _authStateProvider.ClearAuthenticationStateAsync();
 
         _navigationManager.NavigateTo("/");
     }

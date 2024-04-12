@@ -1,5 +1,8 @@
 ﻿@page "/chats/{chatId}"
 @inject FindChatMessageQueryHandler messageQueryHandler
+@inject SendMessageCommandHandler sendMessageHandler
+@inject EditMessageCommandHandler editMessageHandler
+@inject DeleteMessageCommandHandler deleteMessageHandler
 
 <AuthorizeView>
     <Authorized>
@@ -7,14 +10,26 @@
             <MatTableHeader>
                 <th>Sender</th>
                 <th>Message</th>
-                <th>Timestamp</th> 
+                <th>Timestamp</th>
+                <th>Actions</th> <!-- New column for buttons -->
             </MatTableHeader>
             <MatTableRow Context="tableRowContext">
                 <td>@tableRowContext.SenderId</td>
                 <td>@tableRowContext.Message</td>
-                <td>@tableRowContext.TimeStamp.ToString("MM/dd/yyyy HH:mm:ss")</td> 
+                <td>@tableRowContext.TimeStamp.ToString("MM/dd/yyyy HH:mm:ss")</td>
+                <td>
+                    <!-- Edit button -->
+                    <button @onclick="() => EditMessage(tableRowContext.Id)">Edit</button>
+                    <!-- Delete button -->
+                    <button @onclick="() => DeleteMessage(tableRowContext.Id)">Delete</button>
+                </td>
             </MatTableRow>
         </MatTable>
+
+        <div>
+            <input type="text" @bind="messageText" />
+            <button @onclick="SendMessage">Send</button>
+        </div>
     </Authorized>
 </AuthorizeView>
 
@@ -23,6 +38,7 @@
     public string ChatId { get; set; }
 
     private IEnumerable<ChatMessage> messages;
+    private string messageText;
 
     protected override async Task OnInitializedAsync()
     {
@@ -39,6 +55,63 @@
         {
             // Handle exception
             Console.WriteLine($"Error loading messages: {ex.Message}");
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        try
+        {
+            var sendMessageCommand = new SendMessageCommand
+                {
+                    ChatId = ChatId,
+                    Message = messageText
+                };
+
+            await sendMessageHandler.Handle(sendMessageCommand);
+            messageText = ""; // Clear the text field after sending
+            await LoadMessages();
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"Error sending message: {ex.Message}");
+        }
+    }
+
+    private async Task EditMessage(int messageId)
+    {
+        try
+        {
+            // Assuming you have access to the current user's ID
+            var editMessageCommand = new EditMessageCommand
+                {
+                    Id = messageId
+                };
+
+            // You need to provide the new message content here
+            var newMessageContent = messageText; // Provide the new message content
+            await editMessageHandler.Handle(editMessageCommand, newMessageContent);
+            await LoadMessages();
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"Error editing message: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteMessage(int messageId)
+    {
+        try
+        {
+            await deleteMessageHandler.Handle(messageId);
+            await LoadMessages();
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"Error deleting message: {ex.Message}");
         }
     }
 }

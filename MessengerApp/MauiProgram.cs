@@ -33,10 +33,12 @@ namespace MessengerApp
             builder.Services.AddScoped<HttpWrapper>();
 
             // Register AuthStateProvider
-            builder.Services.TryAddScoped<AuthStateProvider>();
-            builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+            builder.Services.AddScoped<AuthStateProvider>();
+            builder.Services.TryAddScoped<AuthenticationStateProvider, AuthStateProvider>();
 
             builder.Services.AddScoped<AuthService>();
+
+            builder.Services.AddScoped<LocalStorageUtils>();
 
             // Register command/query handlers
             builder.Services.AddScoped<RegisterUserCommandHandler>();
@@ -44,8 +46,13 @@ namespace MessengerApp
             builder.Services.AddScoped<LoginUserCommandHandler>();
             builder.Services.AddScoped<FindUsersQueryHandler>();
 
+            builder.Services.AddScoped<CreateChatCommandHandler>();
+            builder.Services.AddScoped<DeleteChatCommandHandler>();
             builder.Services.AddScoped<FindChatsQueryHandler>();
 
+            builder.Services.AddScoped<SendMessageCommandHandler>();
+            builder.Services.AddScoped<DeleteMessageCommandHandler>();
+            builder.Services.AddScoped<EditMessageCommandHandler>();
             builder.Services.AddScoped<FindChatMessageQueryHandler>();
 
 

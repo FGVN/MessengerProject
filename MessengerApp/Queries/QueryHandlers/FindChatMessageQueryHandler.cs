@@ -4,45 +4,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-    class FindChatMessageQueryHandler
+class FindChatMessageQueryHandler
+{
+    private readonly HttpWrapper _httpWrapper;
+    private readonly LocalStorageUtils _localStorageUtils;
+
+    public FindChatMessageQueryHandler(HttpWrapper httpWrapper, LocalStorageUtils localStorageUtils)
     {
-        private readonly HttpWrapper _httpWrapper;
-        private readonly IJSRuntime _jsRuntime;
+        _httpWrapper = httpWrapper;
+        _localStorageUtils = localStorageUtils; 
+    }
 
-        public FindChatMessageQueryHandler(HttpWrapper httpWrapper, IJSRuntime jsRuntime)
+    public async Task<IEnumerable<ChatMessage>> Handle(Guid chatId)
+    {
+        try
         {
-            _httpWrapper = httpWrapper;
-            _jsRuntime = jsRuntime;
-        }
+            var url = $"https://localhost:7287/api/Messages/chatmessages/search";
 
-        public async Task<IEnumerable<ChatMessage>> Handle(Guid chatId)
-        {
-            try
+            var query = new FindMessagesQuery
             {
-                var url = $"https://localhost:7287/api/Query/chatmessages/search";
+                Query = $"{chatId}", // Search by ChatId
+                From = 0, // Start index
+                To = int.MaxValue, // End index (retrieve all messages)
+                SortBy = "senderId", // Sort by timestamp (optional)
+                SortDirection = "desc" // Sort direction (optional)
+            };
 
-                var query = new FindMessagesQuery
-                {
-                    Query = $"{chatId}", // Search by ChatId
-                    From = 0, // Start index
-                    To = int.MaxValue, // End index (retrieve all messages)
-                    SortBy = "senderId", // Sort by timestamp (optional)
-                    SortDirection = "desc" // Sort direction (optional)
-                };
-
-                var result = await _httpWrapper.PostAsync<FindMessagesQuery, IEnumerable<ChatMessage>>(url, query);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                // Handle exception
-                return Enumerable.Empty<ChatMessage>();
-            }
+            var token = await _localStorageUtils.GetJwtTokenFromLocalStorage();
+            var result = await _httpWrapper.PostAsync<FindMessagesQuery, IEnumerable<ChatMessage>>(
+                url, query, token);
+            return result;
         }
-
-        private async Task<string> GetJwtTokenFromLocalStorage()
+        catch (Exception ex)
         {
-            return await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "jwtToken");
+            // Handle exception
+            return Enumerable.Empty<ChatMessage>();
         }
     }
+}
 

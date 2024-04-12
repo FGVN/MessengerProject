@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using System.Security.Claims;
 
 public class AuthStateProvider : AuthenticationStateProvider
 {
@@ -14,26 +11,16 @@ public class AuthStateProvider : AuthenticationStateProvider
         _jsRuntime = jsRuntime;
     }
 
-    public void SetAuthenticatedUser(ClaimsPrincipal user, string jwtToken)
+    public async Task SetAuthenticatedUserAsync(ClaimsPrincipal user, string jwtToken)
     {
-        SaveJwtTokenToLocalStorage(jwtToken);
-        SetAuthenticationState(user);
-    }
-
-    public void SetAuthenticatedUser(ClaimsPrincipal user)
-    {
-        SetAuthenticationState(user);
+        await SaveJwtTokenToLocalStorage(jwtToken);
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
     public async Task ClearAuthenticationStateAsync()
     {
         await RemoveJwtTokenFromLocalStorage();
-        SetAuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-    }
-
-    private void SetAuthenticationState(ClaimsPrincipal user)
-    {
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
     private async Task RemoveJwtTokenFromLocalStorage()
@@ -41,9 +28,9 @@ public class AuthStateProvider : AuthenticationStateProvider
         await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "jwtToken");
     }
 
-    private void SaveJwtTokenToLocalStorage(string jwtToken)
+    private async Task SaveJwtTokenToLocalStorage(string jwtToken)
     {
-        _jsRuntime.InvokeVoidAsync("localStorage.setItem", "jwtToken", jwtToken);
+        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "jwtToken", jwtToken);
     }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
