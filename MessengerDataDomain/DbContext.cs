@@ -10,6 +10,8 @@ namespace MessengerInfrastructure
     {
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<UserChat> UserChats { get; set; }
+        public DbSet<GroupChat> GroupChats { get; set; }
+        public DbSet<GroupChatMembership> GroupChatMemberships { get; set; }
 
         public MessengerDbContext(DbContextOptions<MessengerDbContext> options)
             : base(options)
@@ -19,6 +21,23 @@ namespace MessengerInfrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Define composite primary key for GroupChatMemberships
+            modelBuilder.Entity<GroupChatMembership>()
+                .HasKey(m => new { m.GroupId, m.UserId });
+
+            // Configure relationships
+            modelBuilder.Entity<GroupChatMembership>()
+                .HasOne(m => m.GroupChat)
+                .WithMany(g => g.Members)
+                .HasForeignKey(m => m.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GroupChatMembership>()
+                .HasOne(m => m.User)
+                .WithMany()
+                .HasForeignKey(m => m.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

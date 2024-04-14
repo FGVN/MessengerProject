@@ -1,9 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using MessengerInfrastructure.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Security.Claims;
 using MessengerInfrastructure.CommandHandlers;
 using MessengerDataAccess.Models.Messages;

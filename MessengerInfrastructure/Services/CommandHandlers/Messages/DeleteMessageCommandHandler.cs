@@ -3,17 +3,6 @@ using MessengerDataAccess.Models.Messages;
 
 namespace MessengerInfrastructure.CommandHandlers
 {
-    public class DeleteMessageCommand : IRequest<Unit>
-    {
-        public string SenderId { get; }
-        public int MessageId { get; }
-
-        public DeleteMessageCommand(string senderId, int messageId)
-        {
-            SenderId = senderId;
-            MessageId = messageId;
-        }
-    }
 
     public class DeleteMessageCommandHandler : IRequestHandler<DeleteMessageCommand, Unit>
     {

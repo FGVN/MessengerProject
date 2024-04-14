@@ -5,4 +5,4 @@
     [ContactUserId] NVARCHAR(450) NOT NULL,
     CONSTRAINT FK_UserChats_AspNetUsers FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id),
     CONSTRAINT FK_UserChats_ContactAspNetUsers FOREIGN KEY (ContactUserId) REFERENCES AspNetUsers(Id)
-)
+);

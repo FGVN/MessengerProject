@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using MessengerDataAccess.Models.Chats;
 using MediatR;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
+using MessengerInfrastructure.CommandHandlers;
 
 [Authorize(AuthenticationSchemes = "Bearer")]
 [ApiController]
@@ -21,14 +19,27 @@ public class ChatsController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> CreateChat(string contactUsername)
+    public async Task<IActionResult> CreateChat(CreateGroupChatCommand command)
     {
-        string senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        // Send a command to create a chat
-        var chatId = await _mediator.Send(new CreateChatCommand(senderId, contactUsername));
+        command.Name = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var chatId = await _mediator.Send(command);
 
         return Ok(new { ChatId = chatId });
+    }
+
+    [HttpPost("join")]
+    public async Task<IActionResult> JoinChat(JoinGroupChatCommand command)
+    {
+        command.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        await _mediator.Send(command);
+        return Ok();
+    }
+    [HttpPost("leave")]
+    public async Task<IActionResult> LeaveChat(LeaveGroupChatCommand command)
+    {
+        command.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        await _mediator.Send(command);
+        return Ok();
     }
 
     [HttpDelete("deleteChat/{id}")]
@@ -36,11 +47,7 @@ public class ChatsController : ControllerBase
     {
         string senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var success = await _mediator.Send(new DeleteChatCommand(senderId, id));
-
-        if (success)
-            return Ok();
-        else
-            return NotFound(); // or any appropriate response
+        return success ? Ok() : NotFound();
     }
 
     [HttpGet("userchats")]

@@ -5,7 +5,17 @@
     [SenderId] NVARCHAR(450) NOT NULL, 
     [Message] NVARCHAR(MAX) NOT NULL,
     [Timestamp] DATETIME NOT NULL,
-    CONSTRAINT FK_ChatMessages_UserChats FOREIGN KEY (ChatId) REFERENCES UserChats(ChatId),
-    CONSTRAINT FK_ChatMessages_AspNetUsers FOREIGN KEY (SenderId) REFERENCES AspNetUsers(Id)
-)
+    [IsGroupChat] BIT NOT NULL DEFAULT 0,
+    [GroupChatId] UNIQUEIDENTIFIER NULL,
+    [UserChatId] UNIQUEIDENTIFIER NULL,
 
+    CONSTRAINT FK_ChatMessages_UserChats 
+        FOREIGN KEY (UserChatId) 
+        REFERENCES UserChats(ChatId) 
+        ON DELETE CASCADE,
+
+    CONSTRAINT FK_ChatMessages_GroupChats 
+        FOREIGN KEY (GroupChatId) 
+        REFERENCES GroupChats(Id) 
+        ON DELETE CASCADE
+);

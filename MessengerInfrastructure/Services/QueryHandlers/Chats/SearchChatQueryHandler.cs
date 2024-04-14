@@ -9,10 +9,8 @@ namespace MessengerInfrastructure.Services
 {
     public class SearchChatQueryHandler : QueryHandlerBase<UserChat, UserChatDTO>, IRequestHandler<SearchQuery<UserChatDTO>, IEnumerable<object>>
     {
-        public IUnitOfWork _unitOfWork;
         public SearchChatQueryHandler(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _unitOfWork = unitOfWork;
         }
 
         protected override IEnumerable<string> GetFilterProperties(UserChat entity)

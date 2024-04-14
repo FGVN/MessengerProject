@@ -2,11 +2,7 @@
 using DataDomain.Users;
 using MediatR;
 using MessengerDataAccess.Models.Chats;
-using MessengerInfrastructure.Services.DTOs;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MessengerInfrastructure.Services
 {

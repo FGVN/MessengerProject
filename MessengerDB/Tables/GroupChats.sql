@@ -1,0 +1,7 @@
+﻿CREATE TABLE [dbo].[GroupChats]
+(
+    [Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    [Name] NVARCHAR(100) NOT NULL,
+    [Description] NVARCHAR(MAX),
+    [CreatedAt] DATETIME DEFAULT GETDATE()
+)

@@ -10,10 +10,6 @@ using System.Threading.Tasks;
 namespace MessengerInfrastructure.Services
 {
 
-    public class GetAllUsersQuery : IRequest<IEnumerable<UserMenuItemDTO>>
-    {
-    }
-
     public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<UserMenuItemDTO>>
     {
 

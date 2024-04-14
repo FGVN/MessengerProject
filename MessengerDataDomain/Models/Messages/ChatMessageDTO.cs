@@ -1,8 +1,9 @@
-﻿using System;
+﻿using MediatR;
+using System;
 
 namespace MessengerDataAccess.Models.Messages
 {
-    public class ChatMessageDTO
+    public class ChatMessageDTO : IRequest<string>
     {
         public int Id { get; set; }
         public Guid ChatId { get; set; }

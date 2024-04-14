@@ -69,5 +69,7 @@
     <Build Include="Tables\Auth\AspNetUserRoles.sql" />
     <Build Include="Tables\Auth\AspNetUsers.sql" />
     <Build Include="Tables\Auth\AspNetUserTokens.sql" />
+    <Build Include="Tables\GroupChats.sql" />
+    <Build Include="Tables\GroupChatMemberships.sql" />
   </ItemGroup>
 </Project>

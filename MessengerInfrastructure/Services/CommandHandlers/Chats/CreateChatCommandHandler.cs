@@ -10,17 +10,6 @@ using MessengerInfrastructure.Services.DTOs;
 
 namespace MessengerInfrastructure.Services
 {
-    public class CreateChatCommand : IRequest<Guid>
-    {
-        public string SenderId { get; }
-        public string ContactUsername { get; }
-
-        public CreateChatCommand(string senderId, string contactUsername)
-        {
-            SenderId = senderId;
-            ContactUsername = contactUsername;
-        }
-    }
 
     public class CreateChatCommandHandler : IRequestHandler<CreateChatCommand, Guid>
     {

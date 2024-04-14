@@ -118,15 +118,24 @@ builder.Services.AddScoped<RegisterUserCommandHandler>();
 builder.Services.AddScoped<LoginUserQueryHandler>();
 builder.Services.AddScoped<GetAllUsersQueryHandler>();
 builder.Services.AddScoped<GetUserByIdQueryHandler>();
-builder.Services.AddScoped<SearchUsersQueryHandler>();
+builder.Services.AddScoped<SearchUsersQueryHandler>(); 
 
 builder.Services.AddTransient<IRequestHandler<GetAllUserChatsQuery, IEnumerable<UserChatDTO>>, GetAllUserChatsQueryHandler>();
 builder.Services.AddTransient<IRequestHandler<CreateChatCommand, Guid>, CreateChatCommandHandler>();
 builder.Services.AddTransient<IRequestHandler<DeleteChatCommand, bool>, DeleteChatCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<CreateGroupChatCommand, Guid>, CreateGroupChatCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<JoinGroupChatCommand>, JoinGroupChatCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<LeaveGroupChatCommand>, LeaveGroupChatCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<SearchQuery<UserChatDTO>, IEnumerable<object>>, SearchChatQueryHandler>();
 
+builder.Services.AddScoped<SearchChatQueryHandler>();
 builder.Services.AddScoped<GetAllUserChatsQueryHandler>();
 builder.Services.AddScoped<CreateChatCommandHandler>();
 builder.Services.AddScoped<DeleteChatCommandHandler>();
+builder.Services.AddScoped<CreateGroupChatCommandHandler>();
+builder.Services.AddScoped<JoinGroupChatCommandHandler>();
+builder.Services.AddScoped<LeaveGroupChatCommandHandler>();
+
 
 builder.Services.AddTransient<IRequestHandler<SearchQuery<ChatMessageDTO>, IEnumerable<object>>, SearchMessageQueryHandler>();
 builder.Services.AddTransient<IRequestHandler<SendMessageCommand, int>, SendMessageCommandHandler>();

@@ -1,23 +1,13 @@
-﻿using MediatR;
-using MessengerInfrastructure.Services;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using MessengerDataAccess.Models.Messages;
+using MessengerDataAccess.Models.Chats;
+using MessengerInfrastructure.Services;
 
 namespace MessengerInfrastructure.CommandHandlers
 {
-    public class SendMessageCommand : IRequest<int>
-    {
-        public string SenderId { get; }
-        public SendMessageDTO MessageDto { get; }
-
-        public SendMessageCommand(string senderId, SendMessageDTO messageDto)
-        {
-            SenderId = senderId;
-            MessageDto = messageDto;
-        }
-    }
 
     public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, int>
     {
@@ -41,6 +31,13 @@ namespace MessengerInfrastructure.CommandHandlers
             };
 
             await chatMessageRepository.AddAsync(chatMessage);
+
+            // If it's a group chat message, update the IsGroupChat flag
+            if (request.MessageDto.IsGroupChat)
+            {
+                chatMessage.IsGroupChat = true;
+            }
+
             await _unitOfWork.SaveChangesAsync();
 
             return chatMessage.Id;
