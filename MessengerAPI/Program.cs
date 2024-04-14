@@ -10,6 +10,12 @@ using DataDomain.Users;
 using DataDomain.Repositories;
 using Microsoft.OpenApi.Models;
 using MessengerInfrastructure.CommandHandlers;
+using System.Reflection;
+using MessengerInfrastructure.Services.QueryHandlers;
+using DataAccess.Models.Users;
+using MediatR;
+using MessengerDataAccess.Models.Chats;
+using MessengerDataAccess.Models.Messages;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +88,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 .AddEntityFrameworkStores<MessengerDbContext>()
 .AddDefaultTokenProviders();
 
+
 builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
 builder.Services.AddScoped<IUserCommandRepository, UserCommandRepository>();
 
@@ -101,18 +108,39 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
 builder.Services.Configure<JwtTokenOptions>(builder.Configuration.GetSection("JwtTokenOptions"));
 
-builder.Services.AddScoped<RegisterUserCommandHandler>();
-builder.Services.AddScoped<LoginUserCommandHandler>();
-builder.Services.AddScoped<UserQueryHandler>();
+builder.Services.AddTransient<IRequestHandler<GetAllUsersQuery, IEnumerable<UserMenuItemDTO>>, GetAllUsersQueryHandler>();
+builder.Services.AddTransient<IRequestHandler<GetUserByIdQuery, UserMenuItemDTO>, GetUserByIdQueryHandler>();
+builder.Services.AddTransient<IRequestHandler<RegisterUserDTO, string>, RegisterUserCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<LoginUserDTO, string>, LoginUserQueryHandler>();
+builder.Services.AddTransient<IRequestHandler<SearchUsersQuery, IEnumerable<object>>, SearchUsersQueryHandler>();
 
+builder.Services.AddScoped<RegisterUserCommandHandler>();
+builder.Services.AddScoped<LoginUserQueryHandler>();
+builder.Services.AddScoped<GetAllUsersQueryHandler>();
+builder.Services.AddScoped<GetUserByIdQueryHandler>();
+builder.Services.AddScoped<SearchUsersQueryHandler>();
+
+builder.Services.AddTransient<IRequestHandler<GetAllUserChatsQuery, IEnumerable<UserChatDTO>>, GetAllUserChatsQueryHandler>();
+builder.Services.AddTransient<IRequestHandler<CreateChatCommand, Guid>, CreateChatCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<DeleteChatCommand, bool>, DeleteChatCommandHandler>();
+
+builder.Services.AddScoped<GetAllUserChatsQueryHandler>();
 builder.Services.AddScoped<CreateChatCommandHandler>();
 builder.Services.AddScoped<DeleteChatCommandHandler>();
-builder.Services.AddScoped<ChatMessageQueryHandler>();
 
+builder.Services.AddTransient<IRequestHandler<SearchQuery<ChatMessageDTO>, IEnumerable<object>>, SearchMessageQueryHandler>();
+builder.Services.AddTransient<IRequestHandler<SendMessageCommand, int>, SendMessageCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<DeleteMessageCommand, Unit>, DeleteMessageCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<EditMessageCommand, Unit>, EditMessageCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<DeleteMessageCommand, Unit>, DeleteMessageCommandHandler>();
+
+builder.Services.AddScoped<SearchMessageQueryHandler>();
 builder.Services.AddScoped<SendMessageCommandHandler>();
 builder.Services.AddScoped<DeleteMessageCommandHandler>();
 builder.Services.AddScoped<EditMessageCommandHandler>();
-builder.Services.AddScoped<UserChatQueryHandler>();
+builder.Services.AddScoped<SearchChatQueryHandler>();
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
 var app = builder.Build();
 

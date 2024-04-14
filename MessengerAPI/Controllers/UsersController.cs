@@ -1,65 +1,52 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
-using MessengerInfrastructure.Services;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using DataDomain.Users;
 using DataAccess.Models.Users;
-using System.Security.Claims;
+using MessengerInfrastructure.Services;
 
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly RegisterUserCommandHandler _registerUserCommandHandler;
-    private readonly LoginUserCommandHandler _loginUserCommandHandler;
-    private readonly UserQueryHandler _userQueryHandler;
+    private readonly IMediator _mediator;
 
-    public UsersController(RegisterUserCommandHandler registerUserCommandHandler, 
-        LoginUserCommandHandler loginUserCommandHandler, UserQueryHandler userQueryHandler)
+    public UsersController(IMediator mediator)
     {
-        _registerUserCommandHandler = registerUserCommandHandler;
-        _loginUserCommandHandler = loginUserCommandHandler;
-        _userQueryHandler = userQueryHandler;
-
+        _mediator = mediator;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterUserDTO registerUserDto)
     {
-        var tokenWithId = await _registerUserCommandHandler.Handle(registerUserDto);
+        var tokenWithId = await _mediator.Send(registerUserDto);
         return string.IsNullOrEmpty(tokenWithId) ? BadRequest("User registration failed.") : Ok(new { Token = tokenWithId });
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginUserDTO loginUserDto)
     {
-        var tokenWithId = await _loginUserCommandHandler.Handle(loginUserDto);
-        return string.IsNullOrEmpty(tokenWithId) ?  Unauthorized("Invalid username or password.") : Ok(new { Token = tokenWithId });
+        var tokenWithId = await _mediator.Send(loginUserDto);
+        return string.IsNullOrEmpty(tokenWithId) ? Unauthorized("Invalid username or password.") : Ok(new { Token = tokenWithId });
     }
-
 
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetUserById(string userId)
     {
-        var user = await _userQueryHandler.GetUserByIdAsync(userId);
+        var user = await _mediator.Send(userId);
         return user == null ? NotFound("User not found.") : Ok(user);
     }
-
-
 
     [HttpGet("users")]
     public async Task<IEnumerable<UserMenuItemDTO>> GetUsers()
     {
-        var userId = User.FindFirst("nameid")?.Value;
-
-        return await _userQueryHandler.GetAllAsync();
+        return await _mediator.Send(new GetAllUsersQuery());
     }
 
     [HttpPost("users/search")]
     public async Task<IEnumerable<object>> SearchUsers(SearchUsersQuery query)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        return await _userQueryHandler.SearchAsync(query);
+        return await _mediator.Send(query);
     }
 }

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using MediatR;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace MessengerDataAccess.Models.Chats
 {
-    public class UserChatDTO
+    public class UserChatDTO : IRequest<string>
     {
         public Guid ChatId { get; set; }
 

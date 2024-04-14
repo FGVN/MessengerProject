@@ -1,12 +1,26 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using MessengerDataAccess.Models.Chats;
 using MessengerInfrastructure.Services.DTOs;
 
 namespace MessengerInfrastructure.Services
 {
-    public class DeleteChatCommandHandler
+    public class DeleteChatCommand : IRequest<bool>
+    {
+        public string UserId { get; }
+        public Guid ChatId { get; }
+
+        public DeleteChatCommand(string userId, Guid chatId)
+        {
+            UserId = userId;
+            ChatId = chatId;
+        }
+    }
+
+    public class DeleteChatCommandHandler : IRequestHandler<DeleteChatCommand, bool>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -15,12 +29,12 @@ namespace MessengerInfrastructure.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> Handle(string userId, Guid chatId)
+        public async Task<bool> Handle(DeleteChatCommand request, CancellationToken cancellationToken)
         {
             var userChatRepository = _unitOfWork.GetQueryRepository<UserChat>();
 
             // Check if the user is a member of the chat
-            var userChat = (await userChatRepository.GetAllAsync(uc => uc.UserId == userId && uc.ChatId == chatId)).FirstOrDefault();
+            var userChat = (await userChatRepository.GetAllAsync(uc => uc.UserId == request.UserId && uc.ChatId == request.ChatId)).FirstOrDefault();
 
             if (userChat == null)
             {

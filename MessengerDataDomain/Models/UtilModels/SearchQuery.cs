@@ -1,4 +1,6 @@
-﻿public class SearchQuery<T>
+﻿using MediatR;
+
+public class SearchQuery<T> : IRequest<IEnumerable<object>>
 {
     public string? Query { get; set; }
     public int From { get; set; }

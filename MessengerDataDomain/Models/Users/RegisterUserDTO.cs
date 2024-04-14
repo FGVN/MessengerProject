@@ -1,6 +1,8 @@
-﻿namespace DataDomain.Users
+﻿using MediatR;
+
+namespace DataDomain.Users
 {
-    public class RegisterUserDTO
+    public class RegisterUserDTO : IRequest<string>
     {
         public string Username { get; set; }
         public string Email { get; set; }

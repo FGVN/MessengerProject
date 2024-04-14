@@ -1,10 +1,11 @@
 ﻿using DataDomain.Users;
+using MediatR;
 using MessengerInfrastructure.Utilities;
 using Microsoft.AspNetCore.Identity;
 
 namespace MessengerInfrastructure.Services
 {
-    public class RegisterUserCommandHandler
+    public class RegisterUserCommandHandler : IRequestHandler<RegisterUserDTO, string>
     {
         private readonly IJwtTokenGenerator _tokenGen;
         private readonly UserManager<User> _manager;
@@ -15,7 +16,7 @@ namespace MessengerInfrastructure.Services
             _manager = manager;
         }
 
-        public async Task<string> Handle(RegisterUserDTO registerUserDto)
+        public async Task<string> Handle(RegisterUserDTO registerUserDto, CancellationToken cancellationToken)
         {
             var user = new User { UserName = registerUserDto.Username, Email = registerUserDto.Email };
             var result = await _manager.CreateAsync(user, registerUserDto.Password);

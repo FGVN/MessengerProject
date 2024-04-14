@@ -1,55 +1,38 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using MessengerInfrastructure.Services;
-using DataAccess.Models.Users;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MessengerDataAccess.Models.Chats;
-using MessengerDataAccess.Models.Messages;
 using System.Security.Claims;
 using MessengerInfrastructure.CommandHandlers;
+using MessengerDataAccess.Models.Messages;
 
 namespace MessengerAPI.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     [Route("api/[controller]")]
-    //move
     public class MessagesController : ControllerBase
     {
-        private readonly ChatMessageQueryHandler _chatMessageQueryHandler;
-        private readonly SendMessageCommandHandler _sendMessageCommandHandler;
-        private readonly EditMessageCommandHandler _editMessageCommandHandler;
-        private readonly DeleteMessageCommandHandler _deleteMessageCommandHandler;
+        private readonly IMediator _mediator;
 
-        public MessagesController(ChatMessageQueryHandler chatMessageQueryHandler, SendMessageCommandHandler sendMessageCommandHandler,
-            EditMessageCommandHandler editMessageCommandHandler, DeleteMessageCommandHandler deleteMessageCommandHandler)
-
+        public MessagesController(IMediator mediator)
         {
-            _chatMessageQueryHandler = chatMessageQueryHandler;
-            _sendMessageCommandHandler = sendMessageCommandHandler;
-            _editMessageCommandHandler = editMessageCommandHandler;
-            _deleteMessageCommandHandler = deleteMessageCommandHandler;
-        }
-
-        [HttpGet("chatmessages")]
-        public async Task<IEnumerable<ChatMessageDTO>> GetChatMessages()
-        {
-            return await _chatMessageQueryHandler.GetAllAsync();
+            _mediator = mediator;
         }
 
         [HttpPost("chatmessages/search")]
         public async Task<IEnumerable<object>> SearchChatMessages(SearchQuery<ChatMessageDTO> query)
         {
-            return await _chatMessageQueryHandler.SearchAsync(query);
+            return await _mediator.Send(query);
         }
-
 
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage(SendMessageDTO sendMessageDto)
         {
             string senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _sendMessageCommandHandler.Handle(senderId, sendMessageDto);
+            await _mediator.Send(new SendMessageCommand(senderId, sendMessageDto));
             return Ok();
         }
 
@@ -57,7 +40,7 @@ namespace MessengerAPI.Controllers
         public async Task<IActionResult> DeleteMessage(int id)
         {
             string senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _deleteMessageCommandHandler.Handle(senderId, id);
+            await _mediator.Send(new DeleteMessageCommand(senderId, id));
             return Ok();
         }
 
@@ -65,7 +48,7 @@ namespace MessengerAPI.Controllers
         public async Task<IActionResult> EditMessage(EditMessageDTO editMessageDto)
         {
             string senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _editMessageCommandHandler.Handle(senderId, editMessageDto);
+            await _mediator.Send(new EditMessageCommand(senderId, editMessageDto.Id, editMessageDto.Message));
             return Ok();
         }
     }

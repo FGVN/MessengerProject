@@ -1,60 +1,41 @@
 ﻿using DataAccess.Models.Users;
+using DataDomain.Users;
+using MediatR;
 using MessengerDataAccess.Models.Chats;
-using MessengerInfrastructure;
-using MessengerInfrastructure.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace MessengerInfrastructure.Services
 {
-    public class UserChatQueryHandler : QueryHandlerBase<UserChat, UserChatDTO>
+    public class SearchChatQueryHandler : QueryHandlerBase<UserChat, UserChatDTO>, IRequestHandler<SearchQuery<UserChatDTO>, IEnumerable<object>>
     {
-        private readonly UserQueryHandler _userQueryHandler;
-
-        public UserChatQueryHandler(IUnitOfWork unitOfWork, UserQueryHandler userQueryHandler) : base(unitOfWork)
+        public IUnitOfWork _unitOfWork;
+        public SearchChatQueryHandler(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _userQueryHandler = userQueryHandler;
+            _unitOfWork = unitOfWork;
         }
 
         protected override IEnumerable<string> GetFilterProperties(UserChat entity)
         {
             return new List<string> { "UserId", "ContactUserId" };
         }
-
-        public async Task<IEnumerable<UserChatDTO>> GetAllAsync()
-        {
-            var userChatRepository = _unitOfWork.GetQueryRepository<UserChat>();
-            var userChats = await userChatRepository.GetAllAsync(x => true);
-
-            var userChatDTOs = new List<UserChatDTO>();
-            foreach (var userChat in userChats)
-            {
-                var userDto = await GetUserDto(userChat.UserId);
-                var contactUserDto = await GetUserDto(userChat.ContactUserId);
-
-                var userChatDto = new UserChatDTO
-                {
-                    ChatId = userChat.ChatId,
-                    UserId = userDto?.Username,
-                    ContactUserId = contactUserDto?.Username
-                };
-
-                userChatDTOs.Add(userChatDto);
-            }
-
-            return userChatDTOs;
-        }
-
         private async Task<UserMenuItemDTO> GetUserDto(string userId)
         {
-            // You need to implement this method to get the user DTO based on the user ID.
-            return await _userQueryHandler.GetUserByIdAsync(userId);
+            Expression<Func<User, bool>> userFilterExpression = user => user.Id == userId;
+
+            var userRepository = _unitOfWork.GetQueryRepository<User>();
+
+            var user = userRepository.GetAllQueryable(userFilterExpression).ToList().FirstOrDefault();
+
+            if (user != null)
+            {
+                return new UserMenuItemDTO { Username = user.UserName, Email = user.Email };
+            }
+
+            return null;
         }
 
-        public async Task<IEnumerable<object>> SearchAsync(SearchQuery<UserChatDTO> query)
+        public async Task<IEnumerable<object>> Handle(SearchQuery<UserChatDTO> query, CancellationToken cancellationToken)
         {
             var results = await base.SearchAsync(query);
             var found = new List<object>();

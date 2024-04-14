@@ -1,60 +1,39 @@
 ﻿using DataAccess.Models.Users;
+using DataDomain.Users;
+using MediatR;
 using MessengerDataAccess.Models.Messages;
-using MessengerInfrastructure;
-using MessengerInfrastructure.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace MessengerInfrastructure.Services
 {
-    public class ChatMessageQueryHandler : QueryHandlerBase<ChatMessage, ChatMessageDTO>
+    public class SearchMessageQueryHandler : QueryHandlerBase<ChatMessage, ChatMessageDTO>, IRequestHandler<SearchQuery<ChatMessageDTO>, IEnumerable<object>>
     {
-        private readonly UserQueryHandler _userQueryHandler;
 
-        public ChatMessageQueryHandler(IUnitOfWork unitOfWork, UserQueryHandler userQueryHandler) : base(unitOfWork)
+        public SearchMessageQueryHandler(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _userQueryHandler = userQueryHandler;
         }
 
         protected override IEnumerable<string> GetFilterProperties(ChatMessage entity)
         {
             return new List<string> { "Id", "ChatId", "SenderId", "Message", "Timestamp" };
         }
-
-        public async Task<IEnumerable<ChatMessageDTO>> GetAllAsync()
-        {
-            var chatMessageRepository = _unitOfWork.GetQueryRepository<ChatMessage>();
-            var chatMessages = await chatMessageRepository.GetAllAsync(x => true);
-
-            var chatMessageDTOs = new List<ChatMessageDTO>();
-            foreach (var chatMessage in chatMessages)
-            {
-                var senderDto = await GetUserDto(chatMessage.SenderId);
-
-                var chatMessageDto = new ChatMessageDTO
-                {
-                    Id = chatMessage.Id,
-                    ChatId = chatMessage.ChatId,
-                    SenderId = senderDto?.Username,
-                    Message = chatMessage.Message,
-                    Timestamp = chatMessage.Timestamp
-                };
-
-                chatMessageDTOs.Add(chatMessageDto);
-            }
-
-            return chatMessageDTOs;
-        }
-
         private async Task<UserMenuItemDTO> GetUserDto(string userId)
         {
-            return await _userQueryHandler.GetUserByIdAsync(userId);
-        }
+            Expression<Func<User, bool>> userFilterExpression = user => user.Id == userId;
 
-        public async Task<IEnumerable<object>> SearchAsync(SearchQuery<ChatMessageDTO> query)
+            var userRepository = _unitOfWork.GetQueryRepository<User>();
+
+            var user = userRepository.GetAllQueryable(userFilterExpression).ToList().FirstOrDefault();
+
+            if (user != null)
+            {
+                return new UserMenuItemDTO { Username = user.UserName, Email = user.Email };
+            }
+
+            return null; 
+        }
+        public async Task<IEnumerable<object>> Handle(SearchQuery<ChatMessageDTO> query, CancellationToken cancellationToken)
         {
             var results = await base.SearchAsync(query);
             var found = new List<object>();

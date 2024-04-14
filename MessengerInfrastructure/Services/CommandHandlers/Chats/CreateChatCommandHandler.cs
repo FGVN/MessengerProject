@@ -1,14 +1,28 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DataDomain.Repositories;
 using DataDomain.Users;
+using MediatR;
 using MessengerDataAccess.Models.Chats;
 using MessengerInfrastructure.Services.DTOs;
 
 namespace MessengerInfrastructure.Services
 {
-    public class CreateChatCommandHandler
+    public class CreateChatCommand : IRequest<Guid>
+    {
+        public string SenderId { get; }
+        public string ContactUsername { get; }
+
+        public CreateChatCommand(string senderId, string contactUsername)
+        {
+            SenderId = senderId;
+            ContactUsername = contactUsername;
+        }
+    }
+
+    public class CreateChatCommandHandler : IRequestHandler<CreateChatCommand, Guid>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -17,18 +31,16 @@ namespace MessengerInfrastructure.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Guid> Handle(string senderId, string contactUsername)
+        public async Task<Guid> Handle(CreateChatCommand request, CancellationToken cancellationToken)
         {
-            // Get the sender's user ID from the JWT token
             var userRepository = _unitOfWork.GetQueryRepository<User>();
-            var sender = (await userRepository.GetAllAsync(u => u.Id == senderId)).FirstOrDefault();
+            var sender = (await userRepository.GetAllAsync(u => u.Id == request.SenderId)).FirstOrDefault();
             if (sender == null)
             {
                 throw new Exception("Sender not found.");
             }
 
-            // Get the contact user by username
-            var contactUser = (await userRepository.GetAllAsync(u => u.UserName == contactUsername)).FirstOrDefault();
+            var contactUser = (await userRepository.GetAllAsync(u => u.UserName == request.ContactUsername)).FirstOrDefault();
             if (contactUser == null)
             {
                 throw new Exception("Contact user not found.");
