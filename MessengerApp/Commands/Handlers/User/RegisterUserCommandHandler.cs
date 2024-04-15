@@ -29,7 +29,8 @@ public class RegisterUserCommandHandler
                 Password = command.Password
             };
 
-            string token = (await _httpWrapper.PostAsync<RegisterUserCommand, TokenResponse>("https://localhost:7287/api/Users/login", requestBody)).Token;
+            string token = (await _httpWrapper.PostAsync<RegisterUserCommand, TokenResponse>
+                ("https://localhost:7287/api/Users/register", requestBody)).Token;
 
             var user = await _authService.RegisterAndLoginAsync(new User { JwtToken = token });
 

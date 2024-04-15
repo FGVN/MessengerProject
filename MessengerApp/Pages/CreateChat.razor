@@ -1,0 +1,51 @@
+﻿@page "/createchat"
+@inject CreateGroupChatCommandHandler createGroupChatCommandHandler
+@inject JoinGroupChatCommandHandler joinGroupChatCommandHandler
+@inject NavigationManager navigationManager
+
+<h3>Create Chat</h3>
+
+<AuthorizeView>
+    <Authorized>
+        <form @onsubmit="HandleCreateChat">
+            <div>
+                <label for="chatName">Name:</label>
+                <input type="text" id="chatName" @bind="chatName" />
+            </div>
+            <div>
+                <label for="chatDescription">Description:</label>
+                <input type="text" id="chatDescription" @bind="chatDescription" />
+            </div>
+            <button type="submit">Create</button>
+        </form>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private string chatName;
+    private string chatDescription;
+
+    private async Task HandleCreateChat()
+    {
+        try
+        {
+            // Create 
+            var createCommand = new CreateGroupChatCommand
+                {
+                    Name = chatName,
+                    Description = chatDescription
+                };
+            var chatId = await createGroupChatCommandHandler.Handle(createCommand);
+
+            // Join
+            await joinGroupChatCommandHandler.Handle(chatId);
+
+            // Goto Chat
+            navigationManager.NavigateTo($"/chats/{chatId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating chat: {ex.Message}");
+        }
+    }
+}

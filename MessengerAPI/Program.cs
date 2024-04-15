@@ -16,6 +16,7 @@ using DataAccess.Models.Users;
 using MediatR;
 using MessengerDataAccess.Models.Chats;
 using MessengerDataAccess.Models.Messages;
+using MessengerInfrastructure.QueryHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -127,6 +128,7 @@ builder.Services.AddTransient<IRequestHandler<CreateGroupChatCommand, Guid>, Cre
 builder.Services.AddTransient<IRequestHandler<JoinGroupChatCommand>, JoinGroupChatCommandHandler>();
 builder.Services.AddTransient<IRequestHandler<LeaveGroupChatCommand>, LeaveGroupChatCommandHandler>();
 builder.Services.AddTransient<IRequestHandler<SearchQuery<UserChatDTO>, IEnumerable<object>>, SearchChatQueryHandler>();
+builder.Services.AddTransient<IRequestHandler<MyGroupChatsQuery, IEnumerable<GroupChat>>, MyGroupChatsQueryHandler>();
 
 builder.Services.AddScoped<SearchChatQueryHandler>();
 builder.Services.AddScoped<GetAllUserChatsQueryHandler>();
@@ -135,6 +137,7 @@ builder.Services.AddScoped<DeleteChatCommandHandler>();
 builder.Services.AddScoped<CreateGroupChatCommandHandler>();
 builder.Services.AddScoped<JoinGroupChatCommandHandler>();
 builder.Services.AddScoped<LeaveGroupChatCommandHandler>();
+builder.Services.AddScoped<MyGroupChatsQueryHandler>();
 
 
 builder.Services.AddTransient<IRequestHandler<SearchQuery<ChatMessageDTO>, IEnumerable<object>>, SearchMessageQueryHandler>();

@@ -4,6 +4,7 @@ using System.Security.Claims;
 using DataDomain.Users;
 using DataAccess.Models.Users;
 using MessengerInfrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,13 +17,14 @@ public class UsersController : ControllerBase
         _mediator = mediator;
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterUserDTO registerUserDto)
     {
         var tokenWithId = await _mediator.Send(registerUserDto);
         return string.IsNullOrEmpty(tokenWithId) ? BadRequest("User registration failed.") : Ok(new { Token = tokenWithId });
     }
-
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginUserDTO loginUserDto)
     {

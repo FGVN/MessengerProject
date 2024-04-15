@@ -30,6 +30,21 @@ namespace MessengerInfrastructure.CommandHandlers
             {
                 var commandRepository = _unitOfWork.GetCommandRepository<GroupChatMembership>();
                 await commandRepository.DeleteAsync(membership);
+
+                // Check if the chat has any members left
+                var remainingMembersCount = await membershipRepository.GetAllQueryable(m => m.GroupId == request.GroupChatId).CountAsync();
+
+                if (remainingMembersCount == 0)
+                {
+                    // If there are no remaining members, delete the chat
+                    var chatRepository = _unitOfWork.GetCommandRepository<GroupChat>();
+                    var chatToDelete = _unitOfWork.GetQueryRepository<GroupChat>().GetAllQueryable(m => m.Id == request.GroupChatId).FirstOrDefault();
+                    if (chatToDelete != null)
+                    {
+                        await chatRepository.DeleteAsync(chatToDelete);
+                    }
+                }
+
                 await _unitOfWork.SaveChangesAsync();
             }
         }

@@ -3,14 +3,14 @@ using MessengerApp.Models;
 using MessengerApp.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 
-public class LoginUserCommandHandler
+public class LoginUserQueryHandler
 {
     private readonly HttpWrapper _httpWrapper;
     private readonly AuthService _authService;
     private readonly AuthenticationStateProvider _authStateProvider;
     private readonly NavigationManager _navigationManager;
 
-    public LoginUserCommandHandler(HttpWrapper httpWrapper, AuthService authService, AuthenticationStateProvider authStateProvider, NavigationManager navigationManager)
+    public LoginUserQueryHandler(HttpWrapper httpWrapper, AuthService authService, AuthenticationStateProvider authStateProvider, NavigationManager navigationManager)
     {
         _httpWrapper = httpWrapper;
         _authService = authService;
@@ -18,17 +18,17 @@ public class LoginUserCommandHandler
         _navigationManager = navigationManager;
     }
 
-    public async Task Handle(LoginUserCommand command)
+    public async Task Handle(LoginUserQuery command)
     {
         try
         {
-            var requestBody = new LoginUserCommand
+            var requestBody = new LoginUserQuery
             {
                 Email = command.Email,
                 Password = command.Password
             };
 
-            string token = (await _httpWrapper.PostAsync<LoginUserCommand, TokenResponse>("https://localhost:7287/api/Users/login", requestBody)).Token;
+            string token = (await _httpWrapper.PostAsync<LoginUserQuery, TokenResponse>("https://localhost:7287/api/Users/login", requestBody)).Token;
 
             var user = await _authService.RegisterAndLoginAsync(new User { JwtToken = token });
 
@@ -37,7 +37,6 @@ public class LoginUserCommandHandler
         }
         catch (Exception ex)
         {
-            // Handle exception
         }
     }
 }

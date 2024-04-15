@@ -1,0 +1,81 @@
+﻿@page "/groupchats"
+@inject MyGroupChatsQueryHandler groupChatsQueryHandler
+@inject LeaveGroupChatCommandHandler leaveGroupChatCommandHandler
+@inject NavigationManager navigationManager
+
+<h3>Group Chats</h3>
+
+<AuthorizeView>
+    <Authorized>
+        <div>
+            <MatButton OnClick="@NavigateToCreateChat">Create Chat</MatButton>
+            <MatButton OnClick="@NavigateToJoinChat">Join Chat</MatButton>
+        </div>
+        <MatTable Items="@groupChats">
+            <MatTableHeader>
+                <th>Chat Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </MatTableHeader>
+            <MatTableRow Context="chat">
+                <td>@chat.Id</td>
+                <td>@chat.Name</td>
+                <td>@chat.Description</td>
+                <td>
+                    <MatButton OnClick="@(() => NavigateToChat(chat.Id))">View Messages</MatButton>
+                    <MatButton OnClick="@(() => LeaveGroupChat(chat.Id))">Leave Chat</MatButton>
+                </td>
+            </MatTableRow>
+        </MatTable>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private IEnumerable<GroupChat> groupChats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGroupChats();
+    }
+
+    private async Task LoadGroupChats()
+    {
+        try
+        {
+            groupChats = await groupChatsQueryHandler.Handle();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading group chats: {ex.Message}");
+        }
+    }
+
+    private async Task LeaveGroupChat(Guid chatId)
+    {
+        try
+        {
+            await leaveGroupChatCommandHandler.Handle(chatId);
+            await LoadGroupChats();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error leaving group chat: {ex.Message}");
+        }
+    }
+
+    private void NavigateToChat(Guid chatId)
+    {
+        navigationManager.NavigateTo($"/chats/{chatId}");
+    }
+
+    private void NavigateToCreateChat()
+    {
+        navigationManager.NavigateTo("/createchat");
+    }
+
+    private void NavigateToJoinChat()
+    {
+        navigationManager.NavigateTo("/joinchat");
+    }
+}

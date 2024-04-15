@@ -1,16 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DataDomain.Repositories;
-using DataDomain.Users;
+﻿using DataDomain.Users;
 using MediatR;
 using MessengerDataAccess.Models.Chats;
-using MessengerInfrastructure.Services.DTOs;
 
 namespace MessengerInfrastructure.Services
 {
-
     public class CreateChatCommandHandler : IRequestHandler<CreateChatCommand, Guid>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -35,18 +28,29 @@ namespace MessengerInfrastructure.Services
                 throw new Exception("Contact user not found.");
             }
 
-            var userChatRepository = _unitOfWork.GetCommandRepository<UserChat>();
+            var userChatRepository = _unitOfWork.GetQueryRepository<UserChat>();
 
-            var userChat = new UserChat
+            var existingChat = await userChatRepository.GetAllAsync(
+                uc => (uc.UserId == sender.Id && uc.ContactUserId == contactUser.Id) ||
+                      (uc.UserId == contactUser.Id && uc.ContactUserId == sender.Id));
+
+            if (existingChat.Any())
             {
-                UserId = sender.Id, // Use sender's user ID
-                ContactUserId = contactUser.Id // Use contact user's ID
-            };
+                throw new Exception("A chat between these users already exists.");
+            }
+            else
+            {
+                var userChat = new UserChat
+                {
+                    UserId = sender.Id, 
+                    ContactUserId = contactUser.Id 
+                };
 
-            await userChatRepository.AddAsync(userChat);
-            await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.GetCommandRepository<UserChat>().AddAsync(userChat);
+                await _unitOfWork.SaveChangesAsync();
 
-            return userChat.ChatId;
+                return userChat.ChatId;
+            }
         }
     }
 }

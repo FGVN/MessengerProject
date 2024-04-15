@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace MessengerDataAccess.Models.Chats
 {
@@ -16,6 +17,8 @@ namespace MessengerDataAccess.Models.Chats
         public string Description { get; set; }
         [Required]
         public DateTime CreatedAt { get; set; }
+
+        [JsonIgnore]
         public ICollection<GroupChatMembership> Members { get; set; }
     }
 

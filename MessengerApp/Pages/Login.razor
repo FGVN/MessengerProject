@@ -1,6 +1,6 @@
 ﻿@page "/login"
 
-@inject LoginUserCommandHandler LoginUserHandler
+@inject LoginUserQueryHandler LoginUserHandler
 @inject AuthenticationStateProvider _authStateProvider
 @inject NavigationManager navman;
 
@@ -22,7 +22,7 @@
 
     private async Task HandleSubmit()
     {
-        var command = new LoginUserCommand
+        var command = new LoginUserQuery
             {
                 Email = Email,
                 Password = Password

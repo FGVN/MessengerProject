@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using MessengerDataAccess.Models.Chats;
 using MediatR;
-using MessengerInfrastructure.CommandHandlers;
 
 [Authorize(AuthenticationSchemes = "Bearer")]
 [ApiController]
@@ -19,29 +18,11 @@ public class ChatsController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> CreateChat(CreateGroupChatCommand command)
+    public async Task<IActionResult> CreateDialog(CreateChatCommand command)
     {
-        command.Name = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var chatId = await _mediator.Send(command);
-
         return Ok(new { ChatId = chatId });
     }
-
-    [HttpPost("join")]
-    public async Task<IActionResult> JoinChat(JoinGroupChatCommand command)
-    {
-        command.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        await _mediator.Send(command);
-        return Ok();
-    }
-    [HttpPost("leave")]
-    public async Task<IActionResult> LeaveChat(LeaveGroupChatCommand command)
-    {
-        command.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        await _mediator.Send(command);
-        return Ok();
-    }
-
     [HttpDelete("deleteChat/{id}")]
     public async Task<IActionResult> DeleteChat(Guid id)
     {

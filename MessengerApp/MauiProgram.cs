@@ -43,12 +43,17 @@ namespace MessengerApp
             // Register command/query handlers
             builder.Services.AddScoped<RegisterUserCommandHandler>();
             builder.Services.AddScoped<LogoutUserCommandHandler>();
-            builder.Services.AddScoped<LoginUserCommandHandler>();
+            builder.Services.AddScoped<LoginUserQueryHandler>();
             builder.Services.AddScoped<FindUsersQueryHandler>();
 
             builder.Services.AddScoped<CreateChatCommandHandler>();
             builder.Services.AddScoped<DeleteChatCommandHandler>();
             builder.Services.AddScoped<FindChatsQueryHandler>();
+
+            builder.Services.AddScoped<CreateGroupChatCommandHandler>();
+            builder.Services.AddScoped<JoinGroupChatCommandHandler>();
+            builder.Services.AddScoped<LeaveGroupChatCommandHandler>();
+            builder.Services.AddScoped<MyGroupChatsQueryHandler>();
 
             builder.Services.AddScoped<SendMessageCommandHandler>();
             builder.Services.AddScoped<DeleteMessageCommandHandler>();
