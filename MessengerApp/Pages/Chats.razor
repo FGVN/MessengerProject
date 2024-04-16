@@ -2,6 +2,8 @@
 @inject FindChatsQueryHandler queryHandler
 @inject DeleteChatCommandHandler deleteChatHandler
 @inject NavigationManager navigationManager
+@inject CreateChatCommandHandler createChatHandler
+@inject FindUsersQueryHandler findUsersQueryHandler
 
 <AuthorizeView>
     <Authorized>
@@ -12,7 +14,14 @@
             <MatTextField TValue="string" @bind-Value="PropertiesToGet" Label="Properties to Retrieve" Dense="true" />
             <MatButton Type="submit" Raised="true" Dense="true">Search</MatButton>
         </form>
-
+        <MatSelect @bind-Value="selectedContactUsername" Label="Select Contact Username" Dense="true">
+            @foreach (var username in contactUsernames)
+            {
+                <MatOption Value="@username">@username</MatOption>
+            }
+        </MatSelect>
+        
+        <MatButton OnClick="@CreateNewChat">Create New Chat</MatButton>
         <MatTable Items="@chats">
             <MatTableHeader>
                 <th>ChatId</th>
@@ -44,6 +53,23 @@
     private int PageNumber = 1;
     private int totalChatsCount;
     private const int PageSize = 10;
+
+    private string selectedContactUsername;
+    private List<string> contactUsernames = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var res = await findUsersQueryHandler.Handle(new FindUsersQuery
+            {
+                Query = "a",
+                From = 0,
+                To = 100,
+                SortBy = "username",
+                SortDirection = "asc"
+            }, 1);
+        contactUsernames = res.Select(x => x.Username).ToList();
+        StateHasChanged();
+    }
 
     private async Task HandleSearch()
     {
@@ -91,6 +117,21 @@
         {
             // Handle exception
             Console.WriteLine($"Error deleting chat: {ex.Message}");
+        }
+    }
+    private async Task CreateNewChat()
+    {
+        try
+        {
+            // Handle the creation of a new chat
+            var chatId = await createChatHandler.Handle(selectedContactUsername);
+            // Redirect to the created chat page or do any necessary actions
+            navigationManager.NavigateTo($"/chats/{chatId}");
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"Error creating chat: {ex.Message}");
         }
     }
 }

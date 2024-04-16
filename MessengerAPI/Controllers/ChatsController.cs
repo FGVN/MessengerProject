@@ -18,9 +18,13 @@ public class ChatsController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> CreateDialog(CreateChatCommand command)
+    public async Task<IActionResult> CreateDialog(string contactUsername)
     {
-        var chatId = await _mediator.Send(command);
+        var chatId = await _mediator.Send(new CreateChatCommand
+        (
+            User.FindFirstValue(ClaimTypes.NameIdentifier).ToString(),
+            contactUsername
+        ));
         return Ok(new { ChatId = chatId });
     }
     [HttpDelete("deleteChat/{id}")]

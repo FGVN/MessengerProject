@@ -26,8 +26,8 @@ class FindChatMessageQueryHandler
                 Query = $"{chatId}", // Search by ChatId
                 From = 0, // Start index
                 To = int.MaxValue, // End index (retrieve all messages)
-                SortBy = "senderId", // Sort by timestamp (optional)
-                SortDirection = "desc" // Sort direction (optional)
+                SortBy = "Timestamp", // Sort by timestamp (optional)
+                SortDirection = "asc" // Sort direction (optional)
             };
 
             var token = await _localStorageUtils.GetJwtTokenFromLocalStorage();

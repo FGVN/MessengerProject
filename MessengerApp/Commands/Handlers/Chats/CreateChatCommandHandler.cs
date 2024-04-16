@@ -1,8 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using MessengerApp.Services;
+﻿using System.Text;
 
 public class CreateChatCommandHandler
 {
@@ -23,8 +19,8 @@ public class CreateChatCommandHandler
             var token = await _localStorageUtils.GetJwtTokenFromLocalStorage();
 
             // Send the request to create a chat
-            var response = await _httpWrapper.PostAsync<string, string>(
-                "https://localhost:7287/api/Chats/create", contactUsername, token);
+            var response = await _httpWrapper.PostAsync<object, string>(
+                $"https://localhost:7287/api/Chats/create?contactUsername={contactUsername}", null, token);
 
             // Extract the chat ID from the response
             var chatId = Guid.Parse(response);

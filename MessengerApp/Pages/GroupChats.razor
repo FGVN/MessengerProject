@@ -25,6 +25,7 @@
                 <td>
                     <MatButton OnClick="@(() => NavigateToChat(chat.Id))">View Messages</MatButton>
                     <MatButton OnClick="@(() => LeaveGroupChat(chat.Id))">Leave Chat</MatButton>
+                    <MatButton OnClick="@(() => NavigateToEditChat(chat.Id))">Edit</MatButton> 
                 </td>
             </MatTableRow>
         </MatTable>
@@ -77,5 +78,10 @@
     private void NavigateToJoinChat()
     {
         navigationManager.NavigateTo("/joinchat");
+    }
+
+    private void NavigateToEditChat(Guid chatId)
+    {
+        navigationManager.NavigateTo($"/editgroupchat/{chatId}");
     }
 }

@@ -38,6 +38,15 @@ public class GroupChatsController : Controller
             });
         return Ok();
     }
+
+
+    [HttpPost("update")]
+    public async Task<IActionResult> UpdateChat(UpdateGroupChatCommand command)
+    {
+        await _mediator.Send(command);
+        return Ok();
+    }
+
     [HttpPost("leave")]
     public async Task<IActionResult> LeaveChat(string chatId)
     {

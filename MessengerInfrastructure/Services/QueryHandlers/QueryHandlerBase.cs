@@ -53,9 +53,11 @@ namespace MessengerInfrastructure.Services
 
             var dtoProperties = typeof(TDTO).GetProperties().Select(p => p.Name.ToLower()).ToList();
 
-            var dynamicObjects = queryable.ToList()
+            //
+            var dynamicObjects = queryable
                 .Skip(query.From)
                 .Take(query.To - query.From)
+                .ToList()
                 .Select(user =>
                 {
                     var dynamicObject = Activator.CreateInstance(dynamicType);

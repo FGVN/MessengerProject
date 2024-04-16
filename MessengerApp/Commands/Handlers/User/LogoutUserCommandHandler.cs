@@ -21,6 +21,6 @@ public class LogoutUserCommandHandler
 
         await _authStateProvider.ClearAuthenticationStateAsync();
 
-        _navigationManager.NavigateTo("/");
+        _navigationManager.NavigateTo("/", true);
     }
 }

@@ -46,7 +46,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("users/search")]
-    public async Task<IEnumerable<object>> SearchUsers(SearchUsersQuery query)
+    public async Task<IEnumerable<object>> SearchUsers(SearchQuery<UserMenuItemDTO> query)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         return await _mediator.Send(query);

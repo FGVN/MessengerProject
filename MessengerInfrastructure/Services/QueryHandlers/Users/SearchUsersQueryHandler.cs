@@ -5,11 +5,11 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MessengerInfrastructure.Services
 {
-    public class SearchUsersQueryHandler : QueryHandlerBase<User, UserMenuItemDTO>, IRequestHandler<SearchUsersQuery, IEnumerable<object>>
+    public class SearchUsersQueryHandler : QueryHandlerBase<User, UserMenuItemDTO>, IRequestHandler<SearchQuery<UserMenuItemDTO>, IEnumerable<object>>
     {
         public SearchUsersQueryHandler(IUnitOfWork unitOfWork) : base(unitOfWork) { }
 
-        public Task<IEnumerable<object>> Handle(SearchUsersQuery request, CancellationToken cancellationToken)
+        public Task<IEnumerable<object>> Handle(SearchQuery<UserMenuItemDTO> request, CancellationToken cancellationToken)
         {
             return base.SearchAsync(request);
         }
