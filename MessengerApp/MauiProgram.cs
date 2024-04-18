@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using MessengerApp.Services;
 using Microsoft.AspNetCore.Components;
 using MatBlazor;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MessengerApp
 {
@@ -60,6 +62,11 @@ namespace MessengerApp
             builder.Services.AddScoped<DeleteMessageCommandHandler>();
             builder.Services.AddScoped<EditMessageCommandHandler>();
             builder.Services.AddScoped<FindChatMessageQueryHandler>();
+
+
+
+            // Register SignalR client
+            builder.Services.AddSingleton<ChatClient>();
 
 
             // Register MatBlazor services

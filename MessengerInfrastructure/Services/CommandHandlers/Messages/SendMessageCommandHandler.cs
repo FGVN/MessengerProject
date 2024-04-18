@@ -1,46 +1,36 @@
-﻿using System;
+﻿using MediatR;
+using MessengerDataAccess.Models.Messages;
+using MessengerInfrastructure;
+using MessengerInfrastructure.CommandHandlers;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
-using MessengerDataAccess.Models.Messages;
-using MessengerDataAccess.Models.Chats;
-using MessengerInfrastructure.Services;
 
-namespace MessengerInfrastructure.CommandHandlers
+public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, int>
 {
+    private readonly IUnitOfWork _unitOfWork;
 
-    public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, int>
+    public SendMessageCommandHandler(IUnitOfWork unitOfWork)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+    }
 
-        public SendMessageCommandHandler(IUnitOfWork unitOfWork)
+    public async Task<int> Handle(SendMessageCommand request, CancellationToken cancellationToken)
+    {
+        var chatMessageRepository = _unitOfWork.GetCommandRepository<ChatMessage>();
+
+        var chatMessage = new ChatMessage
         {
-            _unitOfWork = unitOfWork;
-        }
+            ChatId = request.MessageDto.ChatId,
+            SenderId = request.SenderId,
+            Message = request.MessageDto.Message,
+            Timestamp = DateTime.UtcNow
+        };
 
-        public async Task<int> Handle(SendMessageCommand request, CancellationToken cancellationToken)
-        {
-            var chatMessageRepository = _unitOfWork.GetCommandRepository<ChatMessage>();
+        await chatMessageRepository.AddAsync(chatMessage);
+        await _unitOfWork.SaveChangesAsync();
 
-            var chatMessage = new ChatMessage
-            {
-                ChatId = request.MessageDto.ChatId,
-                SenderId = request.SenderId,
-                Message = request.MessageDto.Message,
-                Timestamp = DateTime.UtcNow
-            };
-
-            await chatMessageRepository.AddAsync(chatMessage);
-
-            // If it's a group chat message, update the IsGroupChat flag
-            if (request.MessageDto.IsGroupChat)
-            {
-                chatMessage.IsGroupChat = true;
-            }
-
-            await _unitOfWork.SaveChangesAsync();
-
-            return chatMessage.Id;
-        }
+        // Return the ID of the newly created message
+        return chatMessage.Id;
     }
 }
