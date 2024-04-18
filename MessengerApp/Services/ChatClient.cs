@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using System;
+using System.Threading.Tasks;
 
 class ChatClient
 {
-    private readonly HubConnection _connection;
+    private HubConnection _connection;
     private readonly LocalStorageUtils _localStorageUtils;
 
     public event EventHandler<MessageReceivedEventArgs> MessageReceived;
@@ -12,32 +14,41 @@ class ChatClient
     public ChatClient(LocalStorageUtils localStorageUtils)
     {
         _localStorageUtils = localStorageUtils;
-        _connection = new HubConnectionBuilder()
-            .WithUrl("https://localhost:7287/chathub")
-            .Build();
-
-        // Listen for server events
-        _connection.On<ChatMessage>("ReceiveMessage", message =>
-        {
-            OnMessageReceived(new MessageReceivedEventArgs(message));
-        });
-
-        _connection.On<int, string>("MessageEdited", (messageId, newMessage) =>
-        {
-            OnMessageEdited(new MessageEditedEventArgs(messageId, newMessage));
-        });
-
-        _connection.On<int>("MessageDeleted", messageId =>
-        {
-            OnMessageDeleted(new MessageDeletedEventArgs(messageId));
-        });
     }
 
-    public async Task StartAsync()
+    public async Task StartAsync(string jwtToken, string chatId)
     {
         try
         {
+            _connection = new HubConnectionBuilder()
+                .WithUrl("https://localhost:7287/chathub", options =>
+                {
+                    options.AccessTokenProvider = () => Task.FromResult(jwtToken);
+                })
+                .Build();
+
+            // Listen for server events
+            _connection.On<ChatMessage>("ReceiveMessage", message =>
+            {
+                OnMessageReceived(new MessageReceivedEventArgs(message));
+            });
+
+            _connection.On<int, string>("MessageEdited", (messageId, newMessage) =>
+            {
+                OnMessageEdited(new MessageEditedEventArgs(messageId, newMessage));
+            });
+
+            _connection.On<int>("MessageDeleted", messageId =>
+            {
+                OnMessageDeleted(new MessageDeletedEventArgs(messageId));
+            });
+
+            // Start the connection
             await _connection.StartAsync();
+
+            // Join the chat group
+            await _connection.InvokeAsync("JoinChatGroup", chatId);
+
             Console.WriteLine("Connection started successfully");
         }
         catch (Exception ex)
@@ -46,12 +57,12 @@ class ChatClient
         }
     }
 
-    public async Task SendMessageAsync(SendMessageCommand message, string jwtToken)
+    public async Task SendMessageAsync(SendMessageCommand message)
     {
         try
         {
             // Send the message to the hub
-            await _connection.SendAsync("SendMessage", message, jwtToken);
+            await _connection.SendAsync("SendMessage", message);
             Console.WriteLine($"Message sent: {message.Message}");
         }
         catch (Exception ex)
@@ -60,10 +71,37 @@ class ChatClient
         }
     }
 
+    public async Task EditMessageAsync(int messageId, string newMessage, string chatId)
+    {
+        try
+        {
+            await _connection.SendAsync("EditMessage", messageId, newMessage, chatId);
+            Console.WriteLine($"Message {messageId} edited: {newMessage}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error editing message: {ex.Message}");
+        }
+    }
+
+    public async Task DeleteMessageAsync(int messageId, string chatId)
+    {
+        try
+        {
+            await _connection.SendAsync("DeleteMessage", messageId, chatId);
+            Console.WriteLine($"Message {messageId} deleted");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting message: {ex.Message}");
+        }
+    }
+
     public async Task StopAsync()
     {
         try
         {
+            // Stop the connection
             await _connection.StopAsync();
             Console.WriteLine("Connection stopped successfully");
         }
@@ -73,35 +111,11 @@ class ChatClient
         }
     }
 
-    public async Task EditMessageAsync(int messageId, string newMessage, string jwtToken)
-    {
-        try
-        {
-            await _connection.SendAsync("EditMessage", messageId, newMessage, jwtToken);
-            Console.WriteLine($"Message {messageId} edited: {newMessage}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error editing message: {ex.Message}");
-        }
-    }
-
-    public async Task DeleteMessageAsync(int messageId, string jwtToken)
-    {
-        try
-        {
-            await _connection.SendAsync("DeleteMessage", messageId, jwtToken);
-            Console.WriteLine($"Message {messageId} deleted");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error deleting message: {ex.Message}");
-        }
-    }
     protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
     {
         MessageReceived?.Invoke(this, e);
     }
+
     protected virtual void OnMessageEdited(MessageEditedEventArgs e)
     {
         MessageEdited?.Invoke(this, e);
@@ -112,15 +126,17 @@ class ChatClient
         MessageDeleted?.Invoke(this, e);
     }
 }
+
 class MessageReceivedEventArgs : EventArgs
 {
-    public ChatMessage _message { get; }
+    public ChatMessage Message { get; }
 
     public MessageReceivedEventArgs(ChatMessage message)
     {
-        _message = message;
+        Message = message;
     }
 }
+
 class MessageEditedEventArgs : EventArgs
 {
     public int MessageId { get; }

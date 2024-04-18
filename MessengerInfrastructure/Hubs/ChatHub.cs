@@ -1,10 +1,14 @@
-﻿using MediatR;
+﻿using DataDomain.Users;
+using MediatR;
 using MessengerDataAccess.Models.Messages;
 using MessengerInfrastructure.CommandHandlers;
 using MessengerInfrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
+[Authorize(AuthenticationSchemes = "Bearer")]
 public class ChatHub : Hub
 {
     private readonly IMediator _mediator;
@@ -14,11 +18,16 @@ public class ChatHub : Hub
         _mediator = mediator;
     }
 
-    public async Task SendMessage(SendMessageDTO sendMessageDto, string jwtToken)
+    public async Task JoinChatGroup(string chatId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
+    }
+
+    public async Task SendMessage(SendMessageDTO sendMessageDto)
     {
         try
         {
-            string senderId = ExtractSenderIdFromJwtToken(jwtToken);
+            string senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var command = new SendMessageCommand(senderId, sendMessageDto);
             int messageId = await _mediator.Send(command);
@@ -35,7 +44,8 @@ public class ChatHub : Hub
                 Timestamp = DateTime.UtcNow
             };
 
-            await Clients.All.SendAsync("ReceiveMessage", chatMessage);
+            // Send message only to users in the chat group
+            await Clients.Group(sendMessageDto.ChatId.ToString()).SendAsync("ReceiveMessage", chatMessage);
         }
         catch (Exception ex)
         {
@@ -43,16 +53,17 @@ public class ChatHub : Hub
         }
     }
 
-    public async Task EditMessage(int messageId, string newMessage, string jwtToken)
+    public async Task EditMessage(int messageId, string newMessage, string chatId)
     {
         try
         {
-            string senderId = ExtractSenderIdFromJwtToken(jwtToken);
+            string senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var command = new EditMessageCommand(senderId, messageId, newMessage);
             await _mediator.Send(command);
 
-            await Clients.All.SendAsync("MessageEdited", messageId, newMessage);
+            // Send edited message only to users in the chat group
+            await Clients.Group(chatId).SendAsync("MessageEdited", messageId, newMessage);
         }
         catch (Exception ex)
         {
@@ -60,16 +71,17 @@ public class ChatHub : Hub
         }
     }
 
-    public async Task DeleteMessage(int messageId, string jwtToken)
+    public async Task DeleteMessage(int messageId, string chatId)
     {
         try
         {
-            string senderId = ExtractSenderIdFromJwtToken(jwtToken);
+            string senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var command = new DeleteMessageCommand(senderId, messageId);
             await _mediator.Send(command);
 
-            await Clients.All.SendAsync("MessageDeleted", messageId);
+            // Send deleted message only to users in the chat group
+            await Clients.Group(chatId).SendAsync("MessageDeleted", messageId);
         }
         catch (Exception ex)
         {
@@ -77,10 +89,15 @@ public class ChatHub : Hub
         }
     }
 
-    private string ExtractSenderIdFromJwtToken(string jwtToken)
+    public override async Task OnConnectedAsync()
     {
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(jwtToken);
-        return token.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+        var chatId = Context.GetHttpContext().Request.Query["chatId"];
+        if (!string.IsNullOrEmpty(chatId))
+        {
+            Context.Items["ChatId"] = chatId;
+            await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
+        }
+
+        await base.OnConnectedAsync();
     }
 }

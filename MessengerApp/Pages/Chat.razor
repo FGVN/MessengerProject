@@ -1,164 +1,29 @@
 ﻿@page "/chats/{chatId}"
-@inject FindChatMessageQueryHandler messageQueryHandler
-@inject ChatClient chatClient
-@inject LocalStorageUtils _localStorageUtils
+@using CodeBehind
+@inherits ChatPage
 
 <AuthorizeView>
     <Authorized>
         <MatTable Items="@messages">
-            <!-- Table headers -->
             <MatTableHeader>
                 <th>Sender</th>
                 <th>Message</th>
                 <th>Timestamp</th>
                 <th>Actions</th>
             </MatTableHeader>
-            <!-- Table rows -->
             <MatTableRow Context="tableRowContext">
                 <td>@tableRowContext.SenderId</td>
                 <td>@tableRowContext.Message</td>
                 <td>@tableRowContext.TimeStamp.ToString("MM/dd/yyyy HH:mm:ss")</td>
                 <td>
-                    <!-- Edit and Delete buttons -->
                     <button @onclick="() => EditMessage(tableRowContext.Id, tableRowContext.Message)">Edit</button>
                     <button @onclick="() => DeleteMessage(tableRowContext.Id)">Delete</button>
                 </td>
             </MatTableRow>
         </MatTable>
-
-        <!-- Message input and send button -->
         <div>
             <input type="text" @bind="messageText" />
             <button @onclick="SendMessage">Send</button>
         </div>
     </Authorized>
 </AuthorizeView>
-
-@code {
-    [Parameter]
-    public string ChatId { get; set; }
-
-    private IEnumerable<ChatMessage> messages;
-    private string messageText;
-
-    protected override async Task OnInitializedAsync()
-    {
-        // Start the SignalR client
-        await chatClient.StartAsync();
-
-        // Subscribe to message received event
-        chatClient.MessageReceived += HandleMessageReceived;
-
-        // Subscribe to message edited event
-        chatClient.MessageEdited += HandleMessageEdited;
-
-        // Subscribe to message deleted event
-        chatClient.MessageDeleted += HandleMessageDeleted;
-
-        // Load initial messages
-        await LoadMessages();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        // Unsubscribe from events
-        chatClient.MessageReceived -= HandleMessageReceived;
-        chatClient.MessageEdited -= HandleMessageEdited;
-        chatClient.MessageDeleted -= HandleMessageDeleted;
-
-        // Stop the SignalR connection
-        await chatClient.StopAsync();
-    }
-
-    private async Task SendMessage()
-    {
-        if (!string.IsNullOrEmpty(messageText))
-        {
-            // Send message using the ChatClient
-            var message = new SendMessageCommand { ChatId = ChatId, Message = messageText };
-            await chatClient.SendMessageAsync(message, await _localStorageUtils.GetJwtTokenFromLocalStorage());
-
-            // Clear the message input field
-            messageText = string.Empty;
-        }
-    }
-
-    private async Task LoadMessages()
-    {
-        try
-        {
-            // Retrieve messages for the chat
-            messages = await messageQueryHandler.Handle(new Guid(ChatId));
-        }
-        catch (Exception ex)
-        {
-            // Handle exception
-            Console.WriteLine($"Error loading messages: {ex.Message}");
-        }
-    }
-
-    private async Task EditMessage(int messageId, string currentMessage)
-    {
-        try
-        {
-            await chatClient.EditMessageAsync(messageId, messageText, await _localStorageUtils.GetJwtTokenFromLocalStorage());
-        }
-        catch (Exception ex)
-        {
-            // Handle exception
-            Console.WriteLine($"Error editing message: {ex.Message}");
-        }
-    }
-
-    private async Task DeleteMessage(int messageId)
-    {
-        try
-        {
-            await chatClient.DeleteMessageAsync(messageId, await _localStorageUtils.GetJwtTokenFromLocalStorage());
-        }
-        catch (Exception ex)
-        {
-            // Handle exception
-            Console.WriteLine($"Error deleting message: {ex.Message}");
-        }
-    }
-
-    private void HandleMessageReceived(object sender, MessageReceivedEventArgs e)
-    {
-        // Convert IEnumerable to List if it's not already a List
-        if (!(messages is List<ChatMessage>))
-        {
-            messages = messages.ToList();
-        }
-
-        // Add the received message to the list of messages
-        ((List<ChatMessage>)messages).Add(e._message);
-
-        // Refresh UI
-        StateHasChanged();
-    }
-
-    private void HandleMessageEdited(object sender, MessageEditedEventArgs e)
-    {
-        // Find the edited message in the list
-        var editedMessage = messages.FirstOrDefault(m => m.Id == e.MessageId);
-
-        if (editedMessage != null)
-        {
-            // Update the message content
-            editedMessage.Message = e.NewMessage;
-
-            // Refresh UI
-            StateHasChanged();
-        }
-    }
-
-    private void HandleMessageDeleted(object sender, MessageDeletedEventArgs e)
-    {
-        // Remove the deleted message from the list
-        messages = messages.Where(m => m.Id != e.MessageId);
-
-        // Refresh UI
-        StateHasChanged();
-    }
-}
