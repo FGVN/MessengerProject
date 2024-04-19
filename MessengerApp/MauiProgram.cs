@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
-using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MessengerApp.Services;
 using Microsoft.AspNetCore.Components;
 using MatBlazor;
-using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace MessengerApp
 {
@@ -24,6 +21,8 @@ namespace MessengerApp
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddAuthorizationCore();
 
+            Uri BaseUri = new Uri("https://localhost:7287/");
+
             // Register HttpClient with a base address
             builder.Services.AddScoped(sp =>
             {
@@ -31,8 +30,17 @@ namespace MessengerApp
                 return new HttpClient { BaseAddress = new Uri(navigationManager.BaseUri) };
             });
 
-            // Register HttpWrapper
-            builder.Services.AddScoped<HttpWrapper>();
+            builder.Services.AddScoped<HttpClient>(sp =>
+            {
+                return new HttpClient { BaseAddress = BaseUri };
+            });
+
+            builder.Services.AddScoped<HttpWrapper>(sp =>
+            {
+                var httpClient = sp.GetRequiredService<HttpClient>();
+                return new HttpWrapper(httpClient, BaseUri + "api/");
+            });
+
 
             // Register AuthStateProvider
             builder.Services.AddScoped<AuthStateProvider>();
@@ -58,15 +66,15 @@ namespace MessengerApp
             builder.Services.AddScoped<UpdateGroupChatCommandHandler>();
             builder.Services.AddScoped<MyGroupChatsQueryHandler>();
 
-            builder.Services.AddScoped<SendMessageCommandHandler>();
-            builder.Services.AddScoped<DeleteMessageCommandHandler>();
-            builder.Services.AddScoped<EditMessageCommandHandler>();
             builder.Services.AddScoped<FindChatMessageQueryHandler>();
 
 
 
             // Register SignalR client
-            builder.Services.AddSingleton<ChatClient>();
+            builder.Services.AddSingleton<ChatClient>(sp => 
+            {
+                return new ChatClient(BaseUri);
+            });
 
 
             // Register MatBlazor services

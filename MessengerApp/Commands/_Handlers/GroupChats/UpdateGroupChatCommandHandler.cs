@@ -24,7 +24,7 @@ public class UpdateGroupChatCommandHandler
 
             // Send the request to update the group chat
             await _httpWrapper.PostAsync<UpdateGroupChatCommand, object>(
-                "https://localhost:7287/api/GroupChats/update", command, token);
+                "GroupChats/update", command, token);
         }
         catch (Exception ex)
         {

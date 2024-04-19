@@ -5,23 +5,25 @@ using System.Threading.Tasks;
 class ChatClient
 {
     private HubConnection _connection;
-    private readonly LocalStorageUtils _localStorageUtils;
+    private readonly Uri _BaseUri;
 
     public event EventHandler<MessageReceivedEventArgs> MessageReceived;
     public event EventHandler<MessageEditedEventArgs> MessageEdited;
     public event EventHandler<MessageDeletedEventArgs> MessageDeleted;
+    private string chatId;
 
-    public ChatClient(LocalStorageUtils localStorageUtils)
+    public ChatClient(Uri BaseUri)
     {
-        _localStorageUtils = localStorageUtils;
+        _BaseUri = BaseUri;
     }
 
-    public async Task StartAsync(string jwtToken, string chatId)
+    public async Task StartAsync(string jwtToken, string _chatId)
     {
         try
         {
+            chatId = _chatId;
             _connection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:7287/chathub", options =>
+                .WithUrl(_BaseUri+"chathub", options =>
                 {
                     options.AccessTokenProvider = () => Task.FromResult(jwtToken);
                 })
@@ -71,7 +73,7 @@ class ChatClient
         }
     }
 
-    public async Task EditMessageAsync(int messageId, string newMessage, string chatId)
+    public async Task EditMessageAsync(int messageId, string newMessage)
     {
         try
         {
@@ -84,7 +86,7 @@ class ChatClient
         }
     }
 
-    public async Task DeleteMessageAsync(int messageId, string chatId)
+    public async Task DeleteMessageAsync(int messageId)
     {
         try
         {
@@ -96,12 +98,10 @@ class ChatClient
             Console.WriteLine($"Error deleting message: {ex.Message}");
         }
     }
-
     public async Task StopAsync()
     {
         try
         {
-            // Stop the connection
             await _connection.StopAsync();
             Console.WriteLine("Connection stopped successfully");
         }
@@ -110,6 +110,7 @@ class ChatClient
             Console.WriteLine($"Error stopping connection: {ex.Message}");
         }
     }
+
 
     protected virtual void OnMessageReceived(MessageReceivedEventArgs e)
     {

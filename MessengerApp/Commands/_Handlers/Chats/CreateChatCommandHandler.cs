@@ -20,7 +20,7 @@ public class CreateChatCommandHandler
 
             // Send the request to create a chat
             var response = await _httpWrapper.PostAsync<object, string>(
-                $"https://localhost:7287/api/Chats/create?contactUsername={contactUsername}", null, token);
+                $"Chats/create?contactUsername={contactUsername}", null, token);
 
             // Extract the chat ID from the response
             var chatId = Guid.Parse(response);

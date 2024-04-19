@@ -20,7 +20,7 @@ public class FindUsersQueryHandler
             var startIndex = (PageNumber - 1) * ItemsPerPage;
             var endIndex = startIndex + ItemsPerPage - 1;
 
-            var url = $"https://localhost:7287/api/Users/users/search";
+            var url = $"Users/users/search";
 
             // Modify the query object to include propertiesToGet
             var updatedQuery = new FindUsersQuery

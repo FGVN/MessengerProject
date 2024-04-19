@@ -24,29 +24,5 @@ namespace MessengerAPI.Controllers
         {
             return await _mediator.Send(query);
         }
-
-        [HttpPost("send")]
-        public async Task<IActionResult> SendMessage(SendMessageDTO sendMessageDto)
-        {
-            string senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _mediator.Send(new SendMessageCommand(senderId, sendMessageDto));
-            return Ok();
-        }
-
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteMessage(int id)
-        {
-            string senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _mediator.Send(new DeleteMessageCommand(senderId, id));
-            return Ok();
-        }
-
-        [HttpPut("edit")]
-        public async Task<IActionResult> EditMessage(EditMessageDTO editMessageDto)
-        {
-            string senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _mediator.Send(new EditMessageCommand(senderId, editMessageDto.Id, editMessageDto.Message));
-            return Ok();
-        }
     }
 }

@@ -23,7 +23,7 @@ public class MyGroupChatsQueryHandler
             var token = await _localStorageUtils.GetJwtTokenFromLocalStorage();
 
             var response = await _httpWrapper.GetAsync<IEnumerable<GroupChat>>(
-                "https://localhost:7287/api/GroupChats/myGroups", token);
+                "GroupChats/myGroups", token);
 
             return response;
         }

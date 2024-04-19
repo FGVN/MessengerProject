@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace CodeBehind;
 
-public partial class ChatPage : ComponentBase, IDisposable
+public partial class ChatPage : ComponentBase, IAsyncDisposable
 {
     [Inject] private FindChatMessageQueryHandler messageQueryHandler { get; set; }
     [Inject] private ChatClient chatClient { get; set; }
@@ -68,7 +68,7 @@ public partial class ChatPage : ComponentBase, IDisposable
     {
         try
         {
-            await chatClient.EditMessageAsync(messageId, messageText, ChatId.ToString());
+            await chatClient.EditMessageAsync(messageId, messageText);
         }
         catch (Exception ex)
         {
@@ -81,7 +81,7 @@ public partial class ChatPage : ComponentBase, IDisposable
     {
         try
         {
-            await chatClient.DeleteMessageAsync(messageId, ChatId.ToString());
+            await chatClient.DeleteMessageAsync(messageId);
         }
         catch (Exception ex)
         {
@@ -129,7 +129,7 @@ public partial class ChatPage : ComponentBase, IDisposable
         StateHasChanged();
     }
 
-    public async void Dispose()
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
         chatClient.MessageReceived -= HandleMessageReceived;
         chatClient.MessageEdited -= HandleMessageEdited;

@@ -58,6 +58,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Commands\_Handlers\Messages\" />
       <Folder Include="Data\" />
     </ItemGroup>
 

@@ -22,7 +22,7 @@ public class DeleteChatCommandHandler
             var token = await _localStorageUtils.GetJwtTokenFromLocalStorage();
 
             // Send the request to delete the chat
-            await _httpWrapper.DeleteAsync($"https://localhost:7287/api/Chats/deleteChat/{chatId}", token);
+            await _httpWrapper.DeleteAsync($"Chats/deleteChat/{chatId}", token);
         }
         catch (Exception ex)
         {

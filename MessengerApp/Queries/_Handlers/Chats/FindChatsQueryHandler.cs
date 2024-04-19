@@ -24,7 +24,7 @@ public class FindChatsQueryHandler
             var startIndex = (PageNumber - 1) * ItemsPerPage;
             var endIndex = startIndex + ItemsPerPage - 1;
 
-            var url = $"https://localhost:7287/api/Chats/userchats/search";
+            var url = $"Chats/userchats/search";
 
             var updatedQuery = new FindChatsQuery
             {

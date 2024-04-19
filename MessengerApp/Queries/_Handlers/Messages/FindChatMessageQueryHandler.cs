@@ -19,7 +19,7 @@ class FindChatMessageQueryHandler
     {
         try
         {
-            var url = $"https://localhost:7287/api/Messages/chatmessages/search";
+            var url = $"Messages/chatmessages/search";
 
             var query = new FindMessagesQuery
             {

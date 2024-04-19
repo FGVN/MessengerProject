@@ -30,7 +30,7 @@ public class RegisterUserCommandHandler
             };
 
             string token = (await _httpWrapper.PostAsync<RegisterUserCommand, TokenResponse>
-                ("https://localhost:7287/api/Users/register", requestBody)).Token;
+                ("Users/register", requestBody)).Token;
 
             var user = await _authService.RegisterAndLoginAsync(new User { JwtToken = token });
 

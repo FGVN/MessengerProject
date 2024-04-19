@@ -3,12 +3,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using MessengerApp.Services;
 
-public class JoinGroupChatCommandHandler
+public class LeaveGroupChatCommandHandler
 {
     private readonly HttpWrapper _httpWrapper;
     private readonly LocalStorageUtils _localStorageUtils;
 
-    public JoinGroupChatCommandHandler(HttpWrapper httpWrapper, LocalStorageUtils localStorageUtils)
+    public LeaveGroupChatCommandHandler(HttpWrapper httpWrapper, LocalStorageUtils localStorageUtils)
     {
         _httpWrapper = httpWrapper;
         _localStorageUtils = localStorageUtils;
@@ -21,15 +21,14 @@ public class JoinGroupChatCommandHandler
             // Get the JWT token from local storage
             var token = await _localStorageUtils.GetJwtTokenFromLocalStorage();
 
-            // Send the request to join the group chat
-            var response = await _httpWrapper.PostAsync<object, object>(
-                $"https://localhost:7287/api/GroupChats/join?chatId={groupChatId}", null, token);
-
+            // Send the request to leave the group chat
+            await _httpWrapper.PostAsync<object, object>(
+                $"GroupChats/leave?chatId={groupChatId}", null, token);
         }
         catch (Exception ex)
         {
             // Handle exception
-            Console.WriteLine($"Error joining group chat: {ex.Message}");
+            Console.WriteLine($"Error leaving group chat: {ex.Message}");
             throw;
         }
     }

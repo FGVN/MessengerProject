@@ -23,7 +23,7 @@ public class CreateGroupChatCommandHandler
 
             // Send the request to create a group chat
             var response = await _httpWrapper.PostAsync<CreateGroupChatCommand, dynamic>(
-                "https://localhost:7287/api/GroupChats/create", command, token);
+                "GroupChats/create", command, token);
 
             // Extract the chat ID from the response
             var chatIdString = response.GetProperty("chatId").GetString();
