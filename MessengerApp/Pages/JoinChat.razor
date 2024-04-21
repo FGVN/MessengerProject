@@ -1,12 +1,12 @@
 ﻿@page "/joinchat"
-@inject JoinGroupChatCommandHandler joinGroupChatCommandHandler
-@inject NavigationManager navigationManager
+@using CodeBehind
+@inherits JoinChatPage
 
 <h3>Join Chat</h3>
 
 <AuthorizeView>
     <Authorized>
-        <form @onsubmit="HandleJoinChat">
+        <form @onsubmit="Handle">
             <div>
                 <label for="chatId">Chat ID:</label>
                 <input type="text" id="chatId" @bind="chatId" />
@@ -15,20 +15,3 @@
         </form>
     </Authorized>
 </AuthorizeView>
-
-@code {
-    private string chatId;
-
-    private async Task HandleJoinChat()
-    {
-        try
-        {
-            await joinGroupChatCommandHandler.Handle(Guid.Parse(chatId));
-            navigationManager.NavigateTo($"/chats/{chatId}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error joining chat: {ex.Message}");
-        }
-    }
-}

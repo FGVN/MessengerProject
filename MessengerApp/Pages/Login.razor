@@ -1,12 +1,10 @@
 ﻿@page "/login"
-
-@inject LoginUserQueryHandler LoginUserHandler
-@inject AuthenticationStateProvider _authStateProvider
-@inject NavigationManager navman;
+@using CodeBehind
+@inherits LoginPage
 
 <h1>Register User</h1>
 
-<form @onsubmit="HandleSubmit">
+<form @onsubmit="Handle">
     <label>Email:</label>
     <input type="email" @bind="Email" />
 
@@ -15,20 +13,3 @@
 
     <button type="submit">Login</button>
 </form>
-
-@code {
-    private string Email { get; set; }
-    private string Password { get; set; }
-
-    private async Task HandleSubmit()
-    {
-        var command = new LoginUserQuery
-            {
-                Email = Email,
-                Password = Password
-            };
-
-
-        await LoginUserHandler.Handle(command);
-    }
-}

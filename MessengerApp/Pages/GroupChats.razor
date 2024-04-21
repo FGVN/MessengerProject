@@ -1,7 +1,6 @@
 ﻿@page "/groupchats"
-@inject MyGroupChatsQueryHandler groupChatsQueryHandler
-@inject LeaveGroupChatCommandHandler leaveGroupChatCommandHandler
-@inject NavigationManager navigationManager
+@using CodeBehind
+@inherits GroupChatsPage
 
 <h3>Group Chats</h3>
 
@@ -31,57 +30,3 @@
         </MatTable>
     </Authorized>
 </AuthorizeView>
-
-@code {
-    private IEnumerable<GroupChat> groupChats;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadGroupChats();
-    }
-
-    private async Task LoadGroupChats()
-    {
-        try
-        {
-            groupChats = await groupChatsQueryHandler.Handle();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading group chats: {ex.Message}");
-        }
-    }
-
-    private async Task LeaveGroupChat(Guid chatId)
-    {
-        try
-        {
-            await leaveGroupChatCommandHandler.Handle(chatId);
-            await LoadGroupChats();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error leaving group chat: {ex.Message}");
-        }
-    }
-
-    private void NavigateToChat(Guid chatId)
-    {
-        navigationManager.NavigateTo($"/chats/{chatId}");
-    }
-
-    private void NavigateToCreateChat()
-    {
-        navigationManager.NavigateTo("/createchat");
-    }
-
-    private void NavigateToJoinChat()
-    {
-        navigationManager.NavigateTo("/joinchat");
-    }
-
-    private void NavigateToEditChat(Guid chatId)
-    {
-        navigationManager.NavigateTo($"/editgroupchat/{chatId}");
-    }
-}

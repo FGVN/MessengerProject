@@ -1,17 +1,13 @@
 ﻿using MediatR;
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace MessengerDataAccess.Models.Chats
+namespace MessengerDataAccess.Models.Chats;
+public class UserChatDTO : IRequest<string>
 {
-    public class UserChatDTO : IRequest<string>
-    {
-        public Guid ChatId { get; set; }
+    public Guid ChatId { get; set; }
 
-        [JsonPropertyName("Username")]
-        public string UserId { get; set; }
-        [JsonPropertyName("ContactUsername")]
-        public string ContactUserId { get; set; } 
-    }
+    [JsonPropertyName("Username")]
+    public string UserId { get; set; }
+    [JsonPropertyName("ContactUsername")]
+    public string ContactUserId { get; set; } 
 }

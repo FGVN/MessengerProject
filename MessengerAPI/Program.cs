@@ -1,22 +1,22 @@
-using MessengerInfrastructure;
+using MediatR;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
-using MessengerInfrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using MessengerInfrastructure.Utilities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 using DataDomain.Users;
 using DataDomain.Repositories;
-using Microsoft.OpenApi.Models;
-using MessengerInfrastructure.CommandHandlers;
-using System.Reflection;
-using MessengerInfrastructure.Services.QueryHandlers;
 using DataAccess.Models.Users;
-using MediatR;
+using MessengerInfrastructure;
+using MessengerInfrastructure.Hubs;
+using MessengerInfrastructure.Services;
+using MessengerInfrastructure.QueryHandlers;
+using MessengerInfrastructure.CommandHandlers;
 using MessengerDataAccess.Models.Chats;
 using MessengerDataAccess.Models.Messages;
-using MessengerInfrastructure.QueryHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace DataDomain.Users
+namespace DataDomain.Users;
+public class User : IdentityUser
 {
-    public class User : IdentityUser
-    {
-    }
 }

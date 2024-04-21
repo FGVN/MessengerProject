@@ -1,11 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using DataDomain.Users;
 using DataAccess.Models.Users;
 using MessengerInfrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 
+namespace MessengerAPI.Controllers;
+
+[Authorize(AuthenticationSchemes = "Bearer")]
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
@@ -48,7 +50,6 @@ public class UsersController : ControllerBase
     [HttpPost("users/search")]
     public async Task<IEnumerable<object>> SearchUsers(SearchQuery<UserMenuItemDTO> query)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         return await _mediator.Send(query);
     }
 }

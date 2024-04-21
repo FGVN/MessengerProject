@@ -1,12 +1,12 @@
-﻿using DataDomain.Users;
-using MediatR;
+﻿using MediatR;
 using MessengerDataAccess.Models.Messages;
 using MessengerInfrastructure.CommandHandlers;
 using MessengerInfrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
-using System.Threading.Tasks;
+
+namespace MessengerInfrastructure.Hubs;
 
 [Authorize(AuthenticationSchemes = "Bearer")]
 public class ChatHub : Hub
@@ -44,7 +44,6 @@ public class ChatHub : Hub
                 Timestamp = DateTime.UtcNow
             };
 
-            // Send message only to users in the chat group
             await Clients.Group(sendMessageDto.ChatId.ToString()).SendAsync("ReceiveMessage", chatMessage);
         }
         catch (Exception ex)
@@ -62,7 +61,6 @@ public class ChatHub : Hub
             var command = new EditMessageCommand(senderId, messageId, newMessage);
             await _mediator.Send(command);
 
-            // Send edited message only to users in the chat group
             await Clients.Group(chatId).SendAsync("MessageEdited", messageId, newMessage);
         }
         catch (Exception ex)
@@ -76,11 +74,8 @@ public class ChatHub : Hub
         try
         {
             string senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             var command = new DeleteMessageCommand(senderId, messageId);
             await _mediator.Send(command);
-
-            // Send deleted message only to users in the chat group
             await Clients.Group(chatId).SendAsync("MessageDeleted", messageId);
         }
         catch (Exception ex)
@@ -100,11 +95,9 @@ public class ChatHub : Hub
 
         await base.OnConnectedAsync();
     }
-    public override async Task OnDisconnectedAsync(Exception exception)
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await base.OnDisconnectedAsync(exception);
         await Clients.Client(Context.ConnectionId).SendAsync("CloseConnection");
     }
-
-
 }

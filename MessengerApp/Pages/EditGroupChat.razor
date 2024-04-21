@@ -1,12 +1,12 @@
 ﻿@page "/editgroupchat/{chatId}"
-@inject UpdateGroupChatCommandHandler updateChatCommandHandler
-@inject NavigationManager navigationManager
+@using CodeBehind
+@inherits EditGroupChatPage
 
 <h3>Edit Chat</h3>
 
 <AuthorizeView>
     <Authorized>
-        <form @onsubmit="HandleEditChat">
+        <form @onsubmit="Handle">
             <div>
                 <label for="chatName">Name:</label>
                 <input type="text" id="chatName" @bind="chatName" />
@@ -19,34 +19,3 @@
         </form>
     </Authorized>
 </AuthorizeView>
-
-@code {
-    [Parameter]
-    public string ChatId { get; set; }
-
-    private string chatName;
-    private string chatDescription;
-
-    protected override async Task OnInitializedAsync()
-    {
-    }
-
-    private async Task HandleEditChat()
-    {
-        try
-        {
-            var updateCommand = new UpdateGroupChatCommand
-                {
-                    ChatId = Guid.Parse(ChatId),
-                    newName = chatName,
-                    newDescription = chatDescription
-                };
-            await updateChatCommandHandler.Handle(updateCommand);
-            navigationManager.NavigateTo($"/chat/{ChatId}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error updating chat: {ex.Message}");
-        }
-    }
-}

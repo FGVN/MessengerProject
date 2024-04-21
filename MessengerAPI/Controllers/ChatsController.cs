@@ -5,6 +5,8 @@ using System.Security.Claims;
 using MessengerDataAccess.Models.Chats;
 using MediatR;
 
+namespace MessengerAPI.Controllers;
+
 [Authorize(AuthenticationSchemes = "Bearer")]
 [ApiController]
 [Route("api/[controller]")]
