@@ -5,37 +5,36 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 
-namespace MessengerInfrastructure.Utilities
+namespace MessengerInfrastructure.Utilities;
+
+public class JwtTokenGenerator : IJwtTokenGenerator
 {
-    public class JwtTokenGenerator : IJwtTokenGenerator
+    private readonly JwtTokenOptions _jwtTokenOptions;
+
+    public JwtTokenGenerator(IOptions<JwtTokenOptions> jwtTokenOptions)
     {
-        private readonly JwtTokenOptions _jwtTokenOptions;
+        _jwtTokenOptions = jwtTokenOptions.Value;
+    }
 
-        public JwtTokenGenerator(IOptions<JwtTokenOptions> jwtTokenOptions)
+    public string GenerateToken(string userName)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtTokenOptions.SecretKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            _jwtTokenOptions = jwtTokenOptions.Value;
-        }
+            Subject = new ClaimsIdentity(new[] {
+                new Claim(ClaimTypes.NameIdentifier, userName),
+                new Claim(ClaimTypes.Name, userName)
+            }),
+            Issuer = _jwtTokenOptions.Issuer,
+            Audience = _jwtTokenOptions.Audience,
+            SigningCredentials = creds
+        };
 
-        public string GenerateToken(string userName)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtTokenOptions.SecretKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[] {
-                    new Claim(ClaimTypes.NameIdentifier, userName),
-                    new Claim(ClaimTypes.Name, userName)
-                }),
-                Issuer = _jwtTokenOptions.Issuer,
-                Audience = _jwtTokenOptions.Audience,
-                SigningCredentials = creds
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
-        }
+        return tokenHandler.WriteToken(token);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using MessengerDataAccess.Models.Messages;
 using MessengerInfrastructure.CommandHandlers;
-using MessengerInfrastructure.Services;
+using MessengerInfrastructure.Query;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;

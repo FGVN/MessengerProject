@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using DataDomain.Users;
 using DataAccess.Models.Users;
-using MessengerInfrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
+using MessengerInfrastructure.Query;
 
 namespace MessengerAPI.Controllers;
 

@@ -8,15 +8,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using DataDomain.Users;
-using DataDomain.Repositories;
 using DataAccess.Models.Users;
-using MessengerInfrastructure;
 using MessengerInfrastructure.Hubs;
-using MessengerInfrastructure.Services;
 using MessengerInfrastructure.QueryHandlers;
 using MessengerInfrastructure.CommandHandlers;
 using MessengerDataAccess.Models.Chats;
 using MessengerDataAccess.Models.Messages;
+using DataAccess;
+using DataAccess.Repositories;
+using MessengerInfrastructure.Query;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,14 +100,11 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 .AddDefaultTokenProviders();
 
 
-builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
-builder.Services.AddScoped<IUserCommandRepository, UserCommandRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-builder.Services.AddScoped<IChatMessageQueryRepository, ChatMessageQueryRepository>();
-builder.Services.AddScoped<IChatMessageCommandRepository, ChatMessageCommandRepository>();
+builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 
-builder.Services.AddScoped<IUserChatQueryRepository, UserChatQueryRepository>();
-builder.Services.AddScoped<IUserChatCommandRepository, UserChatCommandRepository>();
+builder.Services.AddScoped<IUserChatRepository, UserChatRepository>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -191,4 +188,3 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
-

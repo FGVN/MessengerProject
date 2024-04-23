@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using MessengerDataAccess.Models.Chats;
 using MediatR;
+using MessengerInfrastructure.Query;
 
 namespace MessengerAPI.Controllers;
 
