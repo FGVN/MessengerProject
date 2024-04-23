@@ -1,6 +1,4 @@
-﻿using DataDomain.Users;
-using MessengerDataAccess.Models.Chats;
-using MessengerDataAccess.Models.Messages;
+﻿using DataAccess.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +11,10 @@ public class MessengerDbContext : IdentityDbContext<User>
     public DbSet<GroupChatMembership> GroupChatMemberships { get; set; }
     public MessengerDbContext(DbContextOptions<MessengerDbContext> options)
         : base(options)
+    {
+    }
+    public MessengerDbContext()
+        : base()
     {
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)

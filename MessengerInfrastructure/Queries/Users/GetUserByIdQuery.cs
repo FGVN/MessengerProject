@@ -1,4 +1,4 @@
-﻿using DataAccess.Models.Users;
+﻿using DataAccess.Models;
 using MediatR;
 
 namespace MessengerInfrastructure.Query;

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MessengerDataAccess.Models.Chats;
+namespace DataAccess.Models;
+
 public class UserChat
 {
     [Key]

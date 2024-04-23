@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
-namespace MessengerDataAccess.Models.Messages;
+namespace DataAccess.Models;
+
 public class ChatMessageDTO : IRequest<string>
 {
     public int Id { get; set; }

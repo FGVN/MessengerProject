@@ -1,7 +1,8 @@
 ﻿using MediatR;
 using System.Text.Json.Serialization;
 
-namespace MessengerDataAccess.Models.Chats;
+namespace DataAccess.Models;
+
 public class UserChatDTO : IRequest<string>
 {
     public Guid ChatId { get; set; }

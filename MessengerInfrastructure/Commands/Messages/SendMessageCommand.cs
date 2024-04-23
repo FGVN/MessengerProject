@@ -1,17 +1,11 @@
 ﻿using MediatR;
-using MessengerDataAccess.Models.Messages;
 
-namespace MessengerInfrastructure.CommandHandlers
+namespace MessengerInfrastructure.Commands;
+
+public class SendMessageCommand : IRequest<int>
 {
-    public class SendMessageCommand : IRequest<int>
-    {
-        public string SenderId { get; }
-        public SendMessageDTO MessageDto { get; }
-
-        public SendMessageCommand(string senderId, SendMessageDTO messageDto)
-        {
-            SenderId = senderId;
-            MessageDto = messageDto;
-        }
-    }
+    public string SenderId { get; set; }
+    public Guid ChatId { get; set; }
+    public string Message { get; set; }
+    public bool IsGroupChat { get; set; }
 }

@@ -1,9 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using MessengerDataAccess.Models.Chats;
 
-namespace MessengerDataAccess.Models.Messages;
+namespace DataAccess.Models;
+
 public class ChatMessage
 {
     [Key]

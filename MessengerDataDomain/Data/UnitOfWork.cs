@@ -32,11 +32,15 @@ public class UnitOfWork : IUnitOfWork, IDisposable
 
             if (entityType != null)
             {
-                var repositoryInstance = Activator.CreateInstance(repositoryType, _context);
-                _repositories.Add(entityType, repositoryInstance);
+                if (!_repositories.ContainsKey(entityType))
+                {
+                    var repositoryInstance = Activator.CreateInstance(repositoryType, _context);
+                    _repositories.Add(entityType, repositoryInstance);
+                }
             }
         }
     }
+
 
     public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class
     {

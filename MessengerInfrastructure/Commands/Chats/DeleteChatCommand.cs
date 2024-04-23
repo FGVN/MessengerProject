@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MessengerInfrastructure.Query;
+namespace MessengerInfrastructure.Commands;
 
 public class DeleteChatCommand : IRequest<bool>
 {

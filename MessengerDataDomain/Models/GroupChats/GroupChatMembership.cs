@@ -1,7 +1,7 @@
-﻿using DataDomain.Users;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace MessengerDataAccess.Models.Chats;
+namespace DataAccess.Models;
+
 public class GroupChatMembership
 {
     [Required]

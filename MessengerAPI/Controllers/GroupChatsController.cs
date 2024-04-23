@@ -1,10 +1,11 @@
 ﻿using MediatR;
-using MessengerDataAccess.Models.Chats;
-using MessengerInfrastructure.CommandHandlers;
 using MessengerInfrastructure.QueryHandlers;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using MessengerInfrastructure.Commands;
+using DataAccess.Models;
+using MessengerInfrastructure.Query;
 
 namespace MessengerAPI.Controllers;
 
@@ -32,11 +33,10 @@ public class GroupChatsController : Controller
     public async Task<IActionResult> JoinChat(string chatId)
     {
         await _mediator.Send(
-            new JoinGroupChatCommand
-            {
-                GroupChatId = Guid.Parse(chatId),
-                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)
-            });
+            new JoinGroupChatCommand(
+                Guid.Parse(chatId),
+                User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ));
         return Ok();
     }
 
@@ -53,10 +53,10 @@ public class GroupChatsController : Controller
     {
         await _mediator.Send(
             new LeaveGroupChatCommand
-            {
-                GroupChatId = Guid.Parse(chatId),
-                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)
-            });
+            (
+                Guid.Parse(chatId),
+                User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ));
         return Ok();
     }
 

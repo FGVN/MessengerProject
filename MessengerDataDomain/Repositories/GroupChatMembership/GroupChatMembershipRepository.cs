@@ -1,4 +1,4 @@
-﻿using MessengerDataAccess.Models.Chats;
+﻿using DataAccess.Models;
 using System.Linq.Expressions;
 
 namespace DataAccess.Repositories;

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace MessengerInfrastructure.CommandHandlers
+namespace MessengerInfrastructure.Commands
 {
     public class CreateGroupChatCommand : IRequest<Guid>
     {

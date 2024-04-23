@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using MessengerDataAccess.Models.Messages;
+using DataAccess.Models;
 
 namespace MessengerAPI.Controllers;
 

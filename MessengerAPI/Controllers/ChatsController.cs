@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using MessengerDataAccess.Models.Chats;
 using MediatR;
 using MessengerInfrastructure.Query;
+using MessengerInfrastructure.Commands;
+using DataAccess.Models;
 
 namespace MessengerAPI.Controllers;
 

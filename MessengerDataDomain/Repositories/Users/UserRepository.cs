@@ -1,4 +1,4 @@
-﻿using DataDomain.Users;
+﻿using DataAccess.Models;
 using System.Linq.Expressions;
 
 namespace DataAccess.Repositories;

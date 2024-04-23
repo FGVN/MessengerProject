@@ -1,7 +1,8 @@
 ﻿using MediatR;
 
-namespace DataDomain.Users;
-public class RegisterUserDTO : IRequest<string>
+namespace MessengerInfrastructure.Commands;
+
+public class RegisterUserCommand : IRequest<string>
 {
     public string Username { get; set; }
     public string Email { get; set; }

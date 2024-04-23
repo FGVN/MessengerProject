@@ -7,16 +7,14 @@ using MessengerInfrastructure.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using DataDomain.Users;
-using DataAccess.Models.Users;
+using DataAccess.Models;
 using MessengerInfrastructure.Hubs;
 using MessengerInfrastructure.QueryHandlers;
 using MessengerInfrastructure.CommandHandlers;
-using MessengerDataAccess.Models.Chats;
-using MessengerDataAccess.Models.Messages;
 using DataAccess;
 using DataAccess.Repositories;
 using MessengerInfrastructure.Query;
+using MessengerInfrastructure.Commands;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -121,7 +119,7 @@ builder.Services.AddSignalR();
 // Users
 builder.Services.AddTransient<IRequestHandler<GetAllUsersQuery, IEnumerable<UserMenuItemDTO>>, GetAllUsersQueryHandler>();
 builder.Services.AddTransient<IRequestHandler<GetUserByIdQuery, UserMenuItemDTO>, GetUserByIdQueryHandler>();
-builder.Services.AddTransient<IRequestHandler<RegisterUserDTO, string>, RegisterUserCommandHandler>();
+builder.Services.AddTransient<IRequestHandler<RegisterUserCommand, string>, RegisterUserCommandHandler>();
 builder.Services.AddTransient<IRequestHandler<LoginUserDTO, string>, LoginUserQueryHandler>();
 builder.Services.AddTransient<IRequestHandler<SearchQuery<UserMenuItemDTO>, IEnumerable<object>>, SearchUsersQueryHandler>();
 

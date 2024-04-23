@@ -1,7 +1,7 @@
 ﻿using DataAccess;
 using MediatR;
-using MessengerDataAccess.Models.Chats;
-using Microsoft.EntityFrameworkCore;
+using DataAccess.Models;
+using MessengerInfrastructure.Commands;
 using System.Linq.Expressions;
 
 namespace MessengerInfrastructure.CommandHandlers;
@@ -22,7 +22,7 @@ public class LeaveGroupChatCommandHandler : IRequestHandler<LeaveGroupChatComman
         Expression<Func<GroupChatMembership, bool>> predicate =
             m => m.GroupId == request.GroupChatId && m.UserId == request.UserId;
 
-        var membership = await membershipRepository.GetAllQueryable(predicate).FirstOrDefaultAsync();
+        var membership = membershipRepository.GetAllQueryable(predicate).FirstOrDefault();
 
         if (membership != null)
         {
@@ -30,13 +30,13 @@ public class LeaveGroupChatCommandHandler : IRequestHandler<LeaveGroupChatComman
             await commandRepository.DeleteAsync(membership);
 
             // Check if the chat has any members left
-            var remainingMembersCount = await membershipRepository.GetAllQueryable(m => m.GroupId == request.GroupChatId).CountAsync();
+            var remainingMembersCount = membershipRepository.GetAllQueryable(m => m.GroupId == request.GroupChatId).Count();
 
             if (remainingMembersCount == 0)
             {
                 // If there are no remaining members, delete the chat
                 var chatRepository = _unitOfWork.GetRepository<GroupChat>();
-                var chatToDelete = _unitOfWork.GetRepository<GroupChat>().GetAllQueryable(m => m.Id == request.GroupChatId).FirstOrDefault();
+                var chatToDelete = chatRepository.GetAllQueryable(m => m.Id == request.GroupChatId).FirstOrDefault();
                 if (chatToDelete != null)
                 {
                     await chatRepository.DeleteAsync(chatToDelete);
@@ -46,4 +46,5 @@ public class LeaveGroupChatCommandHandler : IRequestHandler<LeaveGroupChatComman
             await _unitOfWork.SaveChangesAsync();
         }
     }
+
 }

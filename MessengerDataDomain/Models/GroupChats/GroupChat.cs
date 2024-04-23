@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace MessengerDataAccess.Models.Chats;
+namespace DataAccess.Models;
+
 public class GroupChat
 {
     [Key]

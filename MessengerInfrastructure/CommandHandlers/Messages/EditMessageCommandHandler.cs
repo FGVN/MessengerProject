@@ -1,6 +1,7 @@
 ﻿using MediatR;
-using MessengerDataAccess.Models.Messages;
 using DataAccess;
+using MessengerInfrastructure.Commands;
+using DataAccess.Models;
 
 namespace MessengerInfrastructure.CommandHandlers;
 

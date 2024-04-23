@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace DataDomain.Users;
+namespace DataAccess.Models;
+
 public class User : IdentityUser
 {
+    public User() : base()
+    {
+    }
 }

@@ -1,4 +1,5 @@
-﻿namespace DataAccess.Models.Users;
+﻿namespace DataAccess.Models;
+
 public class UserMenuItemDTO
 {
 	public string Username { get; set; }

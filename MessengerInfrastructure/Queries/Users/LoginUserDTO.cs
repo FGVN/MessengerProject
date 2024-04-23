@@ -1,10 +1,9 @@
 ﻿using MediatR;
 
-namespace DataDomain.Users
+namespace DataAccess.Models;
+
+public class LoginUserDTO : IRequest<string>
 {
-    public class LoginUserDTO : IRequest<string>
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-    }
+    public string Email { get; set; }
+    public string Password { get; set; }
 }
