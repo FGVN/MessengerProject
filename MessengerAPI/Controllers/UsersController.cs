@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using DataDomain.Users;
-using DataAccess.Models.Users;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using MessengerInfrastructure.Query;
+using MessengerInfrastructure.Commands;
 
 namespace MessengerAPI.Controllers;
 
@@ -21,7 +21,7 @@ public class UsersController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterUserDTO registerUserDto)
+    public async Task<IActionResult> Register(RegisterUserCommand registerUserDto)
     {
         var tokenWithId = await _mediator.Send(registerUserDto);
         return string.IsNullOrEmpty(tokenWithId) ? BadRequest("User registration failed.") : Ok(new { Token = tokenWithId });

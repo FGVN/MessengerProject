@@ -21,7 +21,7 @@ namespace MessengerApp
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddAuthorizationCore();
 
-            Uri BaseUri = new Uri("https://localhost:8956/");
+            Uri BaseUri = new Uri("https://localhost:7287/");
 
             // Register HttpClient with a base address
             builder.Services.AddScoped(sp =>

@@ -1,4 +1,4 @@
-﻿using DataDomain.Users;
+﻿using DataAccess.Models;
 using MediatR;
 using MessengerInfrastructure.Utilities;
 using Microsoft.AspNetCore.Identity;

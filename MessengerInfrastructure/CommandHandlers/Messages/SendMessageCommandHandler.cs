@@ -1,6 +1,7 @@
 ﻿using DataAccess;
+using DataAccess.Models;
 using MediatR;
-using MessengerDataAccess.Models.Messages;
+using MessengerInfrastructure.Commands;
 
 namespace MessengerInfrastructure.CommandHandlers;
 
@@ -19,9 +20,9 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, int
 
         var chatMessage = new ChatMessage
         {
-            ChatId = request.MessageDto.ChatId,
+            ChatId = request.ChatId,
             SenderId = request.SenderId,
-            Message = request.MessageDto.Message,
+            Message = request.Message,
             Timestamp = DateTime.UtcNow
         };
 

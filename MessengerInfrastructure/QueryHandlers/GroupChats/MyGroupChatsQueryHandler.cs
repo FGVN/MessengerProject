@@ -1,9 +1,11 @@
 ﻿using DataAccess;
+using DataAccess.Models;
 using MediatR;
-using MessengerDataAccess.Models.Chats;
+using MessengerInfrastructure.Query;
 using Microsoft.EntityFrameworkCore;
 
 namespace MessengerInfrastructure.QueryHandlers;
+
 public class MyGroupChatsQueryHandler : IRequestHandler<MyGroupChatsQuery, IEnumerable<GroupChat>>
 {
     private readonly IUnitOfWork _unitOfWork;

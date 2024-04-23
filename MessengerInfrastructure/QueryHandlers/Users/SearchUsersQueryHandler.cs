@@ -1,6 +1,5 @@
 ﻿using DataAccess;
-using DataAccess.Models.Users;
-using DataDomain.Users;
+using DataAccess.Models;
 using MediatR;
 
 namespace MessengerInfrastructure.QueryHandlers;

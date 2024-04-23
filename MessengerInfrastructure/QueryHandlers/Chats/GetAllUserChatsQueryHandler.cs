@@ -1,8 +1,6 @@
 ﻿using DataAccess;
-using DataAccess.Models.Users;
-using DataDomain.Users;
+using DataAccess.Models;
 using MediatR;
-using MessengerDataAccess.Models.Chats;
 using MessengerInfrastructure.Query;
 using System.Linq.Expressions;
 

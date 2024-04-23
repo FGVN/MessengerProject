@@ -1,6 +1,6 @@
-﻿using MediatR;
-using MessengerDataAccess.Models.Messages;
-using MessengerInfrastructure.CommandHandlers;
+﻿using DataAccess.Models;
+using MediatR;
+using MessengerInfrastructure.Commands;
 using MessengerInfrastructure.Query;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -23,13 +23,13 @@ public class ChatHub : Hub
         await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
     }
 
-    public async Task SendMessage(SendMessageDTO sendMessageDto)
+    public async Task SendMessage(SendMessageCommand command)
     {
         try
         {
             string senderId = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            command.SenderId = senderId;
 
-            var command = new SendMessageCommand(senderId, sendMessageDto);
             int messageId = await _mediator.Send(command);
 
             var userQuery = new GetUserByIdQuery(senderId);
@@ -38,13 +38,13 @@ public class ChatHub : Hub
             var chatMessage = new ChatMessage
             {
                 Id = messageId,
-                ChatId = sendMessageDto.ChatId,
+                ChatId = command.ChatId,
                 SenderId = senderUsername,
-                Message = sendMessageDto.Message,
+                Message = command.Message,
                 Timestamp = DateTime.UtcNow
             };
 
-            await Clients.Group(sendMessageDto.ChatId.ToString()).SendAsync("ReceiveMessage", chatMessage);
+            await Clients.Group(command.ChatId.ToString()).SendAsync("ReceiveMessage", chatMessage);
         }
         catch (Exception ex)
         {

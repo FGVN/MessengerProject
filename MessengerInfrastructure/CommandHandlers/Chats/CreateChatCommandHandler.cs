@@ -1,8 +1,7 @@
 ﻿using DataAccess;
-using DataDomain.Users;
+using DataAccess.Models;
 using MediatR;
-using MessengerDataAccess.Models.Chats;
-using MessengerInfrastructure.Query;
+using MessengerInfrastructure.Commands;
 
 namespace MessengerInfrastructure.QueryHandlers;
 
@@ -21,13 +20,13 @@ public class CreateChatCommandHandler : IRequestHandler<CreateChatCommand, Guid>
         var sender = (await userRepository.GetAllAsync(u => u.Id == request.SenderId)).FirstOrDefault();
         if (sender == null)
         {
-            throw new Exception("Sender not found.");
+            throw new NullReferenceException("Sender not found.");
         }
 
         var contactUser = (await userRepository.GetAllAsync(u => u.UserName == request.ContactUsername)).FirstOrDefault();
         if (contactUser == null)
         {
-            throw new Exception("Contact user not found.");
+            throw new NullReferenceException("Contact user not found.");
         }
 
         var userChatRepository = _unitOfWork.GetRepository<UserChat>();
@@ -44,8 +43,8 @@ public class CreateChatCommandHandler : IRequestHandler<CreateChatCommand, Guid>
         {
             var userChat = new UserChat
             {
-                UserId = sender.Id, 
-                ContactUserId = contactUser.Id 
+                UserId = sender.Id,
+                ContactUserId = contactUser.Id
             };
 
             await _unitOfWork.GetRepository<UserChat>().AddAsync(userChat);
@@ -54,4 +53,5 @@ public class CreateChatCommandHandler : IRequestHandler<CreateChatCommand, Guid>
             return userChat.ChatId;
         }
     }
+
 }

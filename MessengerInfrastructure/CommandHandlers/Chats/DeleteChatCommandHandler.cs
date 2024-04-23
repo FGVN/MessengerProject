@@ -1,7 +1,7 @@
 ﻿using DataAccess;
 using MediatR;
-using MessengerDataAccess.Models.Chats;
-using MessengerInfrastructure.Query;
+using DataAccess.Models;
+using MessengerInfrastructure.Commands;
 
 namespace MessengerInfrastructure.QueryHandlers;
 
