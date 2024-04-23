@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MessengerInfrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using MessengerDataAccess.Models.Chats;
