@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MessengerInfrastructure.QueryHandlers;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;

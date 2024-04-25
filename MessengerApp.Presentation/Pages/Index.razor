@@ -1,0 +1,33 @@
+﻿@page "/"
+@using CodeBehind
+@inherits IndexPage
+
+<AuthorizeView>
+    <NotAuthorized>
+        <h1>Hello, world!</h1>
+        Welcome to your new app.
+        <SurveyPrompt Title="How is Blazor working for you?" />
+    </NotAuthorized>
+    <Authorized>
+
+        <form @onsubmit="HandleSearch">
+            <MatTextField TValue="string" @bind-Value="Query" Label="Search" Dense="true" />
+            <MatTextField TValue="string" @bind-Value="SortBy" Label="Sort By" Dense="true" />
+            <MatTextField TValue="string" @bind-Value="SortDirection" Label="Sort Direction" Dense="true" />
+            <MatTextField TValue="string" @bind-Value="PropertiesToGet" Label="Properties to Retrieve" Dense="true" />
+            <MatButton Type="submit" Raised="true" Dense="true">Search</MatButton>
+        </form>
+
+        <MatTable Items="@users">
+            <MatTableHeader>
+                <th>Username</th>
+                <th>Email</th>
+            </MatTableHeader>
+            <MatTableRow  Context="tableRowContext">
+                <td>@tableRowContext.Username</td>
+                <td>@tableRowContext.Email</td>
+            </MatTableRow>
+        </MatTable>
+        <MatPagination TotalItems="totalUsersCount" PageSize="PageSize" CurrentPage="PageNumber" OnPageChange="HandlePageChange" />
+    </Authorized>
+</AuthorizeView>

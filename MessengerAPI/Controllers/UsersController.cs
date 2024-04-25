@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using MessengerInfrastructure.Query;
 using MessengerInfrastructure.Commands;
+using DataAccess.Models;
 
 namespace MessengerAPI.Controllers;
 
@@ -28,7 +28,7 @@ public class UsersController : ControllerBase
     }
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginUserDTO loginUserDto)
+    public async Task<IActionResult> Login(LoginUserQuery loginUserDto)
     {
         var tokenWithId = await _mediator.Send(loginUserDto);
         return string.IsNullOrEmpty(tokenWithId) ? Unauthorized("Invalid username or password.") : Ok(new { Token = tokenWithId });

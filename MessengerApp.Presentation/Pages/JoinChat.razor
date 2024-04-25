@@ -1,0 +1,17 @@
+﻿@page "/joinchat"
+@using CodeBehind
+@inherits JoinChatPage
+
+<h3>Join Chat</h3>
+
+<AuthorizeView>
+    <Authorized>
+        <form @onsubmit="Handle">
+            <div>
+                <label for="chatId">Chat ID:</label>
+                <input type="text" id="chatId" @bind="chatId" />
+            </div>
+            <button type="submit">Join</button>
+        </form>
+    </Authorized>
+</AuthorizeView>

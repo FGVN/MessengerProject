@@ -118,15 +118,13 @@ builder.Services.AddSignalR();
 
 // Users
 builder.Services.AddTransient<IRequestHandler<GetAllUsersQuery, IEnumerable<UserMenuItemDTO>>, GetAllUsersQueryHandler>();
-builder.Services.AddTransient<IRequestHandler<GetUserByIdQuery, UserMenuItemDTO>, GetUserByIdQueryHandler>();
 builder.Services.AddTransient<IRequestHandler<RegisterUserCommand, string>, RegisterUserCommandHandler>();
-builder.Services.AddTransient<IRequestHandler<LoginUserDTO, string>, LoginUserQueryHandler>();
+builder.Services.AddTransient<IRequestHandler<LoginUserQuery, string>, LoginUserQueryHandler>();
 builder.Services.AddTransient<IRequestHandler<SearchQuery<UserMenuItemDTO>, IEnumerable<object>>, SearchUsersQueryHandler>();
 
 builder.Services.AddScoped<RegisterUserCommandHandler>();
 builder.Services.AddScoped<LoginUserQueryHandler>();
 builder.Services.AddScoped<GetAllUsersQueryHandler>();
-builder.Services.AddScoped<GetUserByIdQueryHandler>();
 builder.Services.AddScoped<SearchUsersQueryHandler>(); 
 
 // Chats

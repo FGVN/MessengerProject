@@ -58,7 +58,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="CommandHandlers\Messages\" />
+      <ProjectReference Include="..\MessengerApp.SignalR\MessengerApp.SignalR.csproj" />
     </ItemGroup>
 
 </Project>

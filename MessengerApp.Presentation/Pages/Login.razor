@@ -1,0 +1,15 @@
+﻿@page "/login"
+@using CodeBehind
+@inherits LoginPage
+
+<h1>Register User</h1>
+
+<form @onsubmit="Handle">
+    <label>Email:</label>
+    <input type="email" @bind="Email" />
+
+    <label>Password:</label>
+    <input type="password" @bind="Password" />
+
+    <button type="submit">Login</button>
+</form>
