@@ -1,33 +1,30 @@
-﻿using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-public class FindChatMessageQueryHandler
+﻿public class FindChatMessageQueryHandler
 {
     private readonly HttpWrapper _httpWrapper;
     private readonly LocalStorageUtils _localStorageUtils;
+    private int _pageIndex = 0;
+    private const int PageSize = 5;
 
     public FindChatMessageQueryHandler(HttpWrapper httpWrapper, LocalStorageUtils localStorageUtils)
     {
         _httpWrapper = httpWrapper;
-        _localStorageUtils = localStorageUtils; 
+        _localStorageUtils = localStorageUtils;
     }
 
-    public async Task<IEnumerable<ChatMessage>> Handle(Guid chatId)
+    public async Task<IEnumerable<ChatMessage>> Handle(Guid chatId, int pageIndex)
     {
         try
         {
+            _pageIndex = pageIndex;
             var url = $"Messages/chatmessages/search";
 
             var query = new FindMessagesQuery
             {
                 Query = $"{chatId}", // Search by ChatId
-                From = 0, // Start index
-                To = int.MaxValue, // End index (retrieve all messages)
+                From = _pageIndex * PageSize, // Start index for pagination
+                To = (_pageIndex + 1) * PageSize - 1, // End index for pagination
                 SortBy = "Timestamp", // Sort by timestamp (optional)
-                SortDirection = "asc" // Sort direction (optional)
+                SortDirection = "desc" // Sort direction (optional)
             };
 
             var token = await _localStorageUtils.GetJwtTokenFromLocalStorage();
@@ -42,4 +39,3 @@ public class FindChatMessageQueryHandler
         }
     }
 }
-

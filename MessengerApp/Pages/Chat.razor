@@ -4,26 +4,36 @@
 
 <AuthorizeView>
     <Authorized>
-        <MatTable Items="@messages">
-            <MatTableHeader>
-                <th>Sender</th>
-                <th>Message</th>
-                <th>Timestamp</th>
-                <th>Actions</th>
-            </MatTableHeader>
-            <MatTableRow Context="tableRowContext">
-                <td>@tableRowContext.SenderId</td>
-                <td>@tableRowContext.Message</td>
-                <td>@tableRowContext.TimeStamp.ToString("MM/dd/yyyy HH:mm:ss")</td>
-                <td>
-                    <button @onclick="() => EditMessage(tableRowContext.Id, tableRowContext.Message)">Edit</button>
-                    <button @onclick="() => DeleteMessage(tableRowContext.Id)">Delete</button>
-                </td>
-            </MatTableRow>
-        </MatTable>
+        <div class="message-list">
+            @foreach (var message in messages)
+            {
+                <MatCard>
+                    <MatCardContent>
+                        <div><strong>@message.SenderId</strong></div>
+                        <div>@message.Message</div>
+                        <div>@message.TimeStamp.ToString("MM/dd/yyyy HH:mm:ss")</div>
+                    </MatCardContent>
+                    <MatCardActions>
+                        <MatButton @onclick="() => EditMessage(message.Id)">Edit</MatButton>
+                        <MatButton @onclick="() => DeleteMessage(message.Id)">Delete</MatButton>
+                    </MatCardActions>
+                </MatCard>
+            }
+        </div>
+        <div>
+            <MatButton @onclick="LoadMoreMessages">Load More</MatButton>
+        </div>
         <div>
             <input type="text" @bind="messageText" />
-            <button @onclick="SendMessage">Send</button>
+            <MatButton @onclick="SendMessage">Send</MatButton>
         </div>
     </Authorized>
 </AuthorizeView>
+
+<style>
+    .message-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+</style>

@@ -1,7 +1,7 @@
-﻿using DataAccess.Models;
+﻿using DataAccess;
+using DataAccess.Models;
 using MediatR;
 using MessengerInfrastructure.Commands;
-using MessengerInfrastructure.Query;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
@@ -12,10 +12,12 @@ namespace MessengerInfrastructure.Hubs;
 public class ChatHub : Hub
 {
     private readonly IMediator _mediator;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ChatHub(IMediator mediator)
+    public ChatHub(IMediator mediator, IUnitOfWork unitOfWork)
     {
         _mediator = mediator;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task JoinChatGroup(string chatId)
@@ -32,9 +34,13 @@ public class ChatHub : Hub
 
             int messageId = await _mediator.Send(command);
 
-            var userQuery = new GetUserByIdQuery(senderId);
-            var senderUsername = (await _mediator.Send(userQuery)).Username;
+            var user = _unitOfWork.GetRepository<User>().GetAllQueryable(x => x.Id == senderId).AsQueryable().FirstOrDefault();
+            if (user == null)
+            {
+                throw new ArgumentNullException("User not found");
+            }
 
+            var senderUsername = user.UserName;
             var chatMessage = new ChatMessage
             {
                 Id = messageId,

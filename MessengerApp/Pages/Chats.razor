@@ -4,22 +4,20 @@
 
 <AuthorizeView>
     <Authorized>
+        <MatH4>Chats</MatH4>
         <form @onsubmit="HandleSearch">
-            <MatTextField TValue="string" @bind-Value="Query" Label="Search" Dense="true" />
             <MatTextField TValue="string" @bind-Value="SortBy" Label="Sort By" Dense="true" />
-            <MatTextField TValue="string" @bind-Value="SortDirection" Label="Sort Direction" Dense="true" />
+            <MatSelect @bind-Value="SortDirection" Label="Sort Direction">
+                <MatOptionString Value="asc">asc</MatOptionString>
+                <MatOptionString Value="desc">desc</MatOptionString>
+            </MatSelect>
             <MatTextField TValue="string" @bind-Value="PropertiesToGet" Label="Properties to Retrieve" Dense="true" />
             <MatButton Type="submit" Raised="true" Dense="true">Search</MatButton>
         </form>
-        <MatSelect @bind-Value="selectedContactUsername" Label="Select Contact Username" Dense="true">
-            @foreach (var username in contactUsernames)
-            {
-                <MatOption Value="@username">@username</MatOption>
-            }
-        </MatSelect>
+        <MatTextField @bind-Value="selectedContactUsername" Label="Enter user to create chat"></MatTextField>
         
         <MatButton OnClick="@CreateNewChat">Create New Chat</MatButton>
-        <MatTable Items="@chats">
+        <MatTable Items="@chats" ShowPaging="false">
             <MatTableHeader>
                 <th>ChatId</th>
                 <th>Username</th>
@@ -36,7 +34,7 @@
                 </td>
             </MatTableRow>
         </MatTable>
-
-        <MatPagination TotalItems="totalChatsCount" PageSize="PageSize" CurrentPage="PageNumber" OnPageChange="HandlePageChange" />
+        <MatButton OnClick="HandlePrevious" Disabled="disablePrevious">Previous</MatButton>
+        <MatButton OnClick="HandleNext" Disabled="disableNext">Next</MatButton>
     </Authorized>
 </AuthorizeView>

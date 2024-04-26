@@ -9,25 +9,31 @@
         <SurveyPrompt Title="How is Blazor working for you?" />
     </NotAuthorized>
     <Authorized>
+        <MatH4>Users</MatH4>
+        <div>
+            <form @onsubmit="HandleSearch">
+                <MatTextField TValue="string" @bind-Value="Query" Label="Search" Dense="true" />
+                <MatTextField TValue="string" @bind-Value="SortBy" Label="Sort By" Dense="true" />
+                <MatSelect @bind-Value="SortDirection" Label="Sort Direction">
+                    <MatOptionString Value="asc">asc</MatOptionString>
+                    <MatOptionString Value="desc">desc</MatOptionString>
+                </MatSelect>
+                <MatTextField TValue="string" @bind-Value="PropertiesToGet" Label="Properties to Retrieve" Dense="true" />
+                <MatButton Type="submit" Raised="true" Dense="true">Search</MatButton>
+            </form>
 
-        <form @onsubmit="HandleSearch">
-            <MatTextField TValue="string" @bind-Value="Query" Label="Search" Dense="true" />
-            <MatTextField TValue="string" @bind-Value="SortBy" Label="Sort By" Dense="true" />
-            <MatTextField TValue="string" @bind-Value="SortDirection" Label="Sort Direction" Dense="true" />
-            <MatTextField TValue="string" @bind-Value="PropertiesToGet" Label="Properties to Retrieve" Dense="true" />
-            <MatButton Type="submit" Raised="true" Dense="true">Search</MatButton>
-        </form>
-
-        <MatTable Items="@users">
-            <MatTableHeader>
-                <th>Username</th>
-                <th>Email</th>
-            </MatTableHeader>
-            <MatTableRow  Context="tableRowContext">
-                <td>@tableRowContext.Username</td>
-                <td>@tableRowContext.Email</td>
-            </MatTableRow>
-        </MatTable>
-        <MatPagination TotalItems="totalUsersCount" PageSize="PageSize" CurrentPage="PageNumber" OnPageChange="HandlePageChange" />
+            <MatTable Items="@Users" ShowPaging="false">
+                <MatTableHeader>
+                    <th>Username</th>
+                    <th>Email</th>
+                </MatTableHeader>
+                <MatTableRow Context="tableRowContext">
+                    <td>@tableRowContext.Username</td>
+                    <td>@tableRowContext.Email</td>
+                </MatTableRow>
+            </MatTable>
+            <MatButton OnClick="HandlePrevious" Disabled="disablePrevious">Previous</MatButton>
+            <MatButton OnClick="HandleNext" Disabled="disableNext">Next</MatButton>
+        </div>
     </Authorized>
 </AuthorizeView>

@@ -8,25 +8,22 @@ public partial class ChatPage : ComponentBase, IAsyncDisposable
     [Inject] private ChatClient chatClient { get; set; }
     [Inject] public LocalStorageUtils _localStorageUtils { get; set; }
     [Parameter] public string ChatId { get; set; }
+   
 
-    [Inject] public IEnumerable<ChatMessage> messages { get; set; }
+    public List<ChatMessage> messages { get; set; }
     public string messageText;
+    private int currentPageIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        // Start the SignalR client
-        await chatClient.StartAsync(await _localStorageUtils.GetJwtTokenFromLocalStorage(), ChatId.ToString());
+        messages = new();
+        await chatClient.StartAsync(await _localStorageUtils.GetJwtTokenFromLocalStorage(), ChatId);
 
-        // Subscribe to message received event
+        // Subscribe to events
         chatClient.MessageReceived += HandleMessageReceived;
-
-        // Subscribe to message edited event
         chatClient.MessageEdited += HandleMessageEdited;
-
-        // Subscribe to message deleted event
         chatClient.MessageDeleted += HandleMessageDeleted;
 
-        // Load initial messages
         await LoadMessages();
     }
 
@@ -42,13 +39,17 @@ public partial class ChatPage : ComponentBase, IAsyncDisposable
             messageText = string.Empty;
         }
     }
-
-    public async Task LoadMessages()
+    protected async Task LoadMessages()
     {
         try
         {
             // Retrieve messages for the chat
-            messages = await messageQueryHandler.Handle(new Guid(ChatId));
+            var loadedMessages = await messageQueryHandler.Handle(new Guid(ChatId), currentPageIndex);
+            if (loadedMessages != null)
+            {
+                messages.InsertRange(0, loadedMessages.Reverse());
+                StateHasChanged(); 
+            }
         }
         catch (Exception ex)
         {
@@ -57,7 +58,7 @@ public partial class ChatPage : ComponentBase, IAsyncDisposable
         }
     }
 
-    public async Task EditMessage(int messageId, string currentMessage)
+    public async Task EditMessage(int messageId)
     {
         try
         {
@@ -85,41 +86,30 @@ public partial class ChatPage : ComponentBase, IAsyncDisposable
 
     private void HandleMessageReceived(object sender, MessageReceivedEventArgs e)
     {
-        // Convert IEnumerable to List if it's not already a List
-        if (!(messages is List<ChatMessage>))
-        {
-            messages = messages.ToList();
-        }
-
-        // Add the received message to the list of messages
-        ((List<ChatMessage>)messages).Add(e.Message);
-
-        // Refresh UI
+        messages.Add(e.Message);
         StateHasChanged();
     }
 
     private void HandleMessageEdited(object sender, MessageEditedEventArgs e)
     {
-        // Find the edited message in the list
         var editedMessage = messages.FirstOrDefault(m => m.Id == e.MessageId);
-
         if (editedMessage != null)
         {
-            // Update the message content
             editedMessage.Message = e.NewMessage;
-
-            // Refresh UI
             StateHasChanged();
         }
     }
 
     private void HandleMessageDeleted(object sender, MessageDeletedEventArgs e)
     {
-        // Remove the deleted message from the list
-        messages = messages.Where(m => m.Id != e.MessageId);
-
-        // Refresh UI
+        messages.RemoveAll(m => m.Id == e.MessageId);
         StateHasChanged();
+    }
+
+    public async Task LoadMoreMessages()
+    {
+        currentPageIndex++;
+        await LoadMessages();
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()

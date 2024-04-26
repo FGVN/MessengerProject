@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="CommandHandlers\Messages\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MessengerApp.Auth\MessengerApp.Auth.csproj" />
   </ItemGroup>
 

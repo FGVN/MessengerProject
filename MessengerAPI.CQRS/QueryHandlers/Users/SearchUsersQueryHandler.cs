@@ -1,7 +1,6 @@
 ﻿using DataAccess;
 using DataAccess.Models;
 using MediatR;
-using System.Reflection;
 
 namespace MessengerInfrastructure.QueryHandlers;
 

@@ -1,21 +1,21 @@
-﻿public class FindChatsQueryHandler
+﻿public class FindGroupChatsQueryHandler
 {
     private readonly HttpWrapper _httpWrapper;
     private readonly LocalStorageUtils _localStorageUtils;
 
-    public FindChatsQueryHandler(HttpWrapper httpWrapper, LocalStorageUtils localStorageUtils)
+    public FindGroupChatsQueryHandler(HttpWrapper httpWrapper, LocalStorageUtils localStorageUtils)
     {
         _httpWrapper = httpWrapper;
         _localStorageUtils = localStorageUtils;
     }
 
-    public async Task<IEnumerable<ChatMenuItem>> Handle(FindChatsQuery query)
+    public async Task<IEnumerable<GroupChat>> Handle(FindGroupChatsQuery query)
     {
         try
         {
-            var url = $"Chats/userchats/search";
+            var url = $"GroupChats/groupchats/search";
 
-            var updatedQuery = new FindChatsQuery
+            var updatedQuery = new FindGroupChatsQuery
             {
                 Query = query.Query,
                 SortBy = query.SortBy,
@@ -26,13 +26,13 @@
             };
 
             var token = await _localStorageUtils.GetJwtTokenFromLocalStorage();
-            return await _httpWrapper.PostAsync<FindChatsQuery, IEnumerable<ChatMenuItem>>(
+            return await _httpWrapper.PostAsync<FindGroupChatsQuery, IEnumerable<GroupChat>>(
                 url, updatedQuery, token);
         }
         catch (Exception ex)
         {
             // Handle exception
-            return Enumerable.Empty<ChatMenuItem>();
+            return Enumerable.Empty<GroupChat>();
         }
     }
 }

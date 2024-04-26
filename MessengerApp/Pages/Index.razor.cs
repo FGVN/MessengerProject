@@ -1,21 +1,25 @@
 ﻿using Microsoft.AspNetCore.Components;
 
 namespace CodeBehind;
-public class IndexPage : ComponentBase
+
+public partial class IndexPage : ComponentBase
 {
-    [Inject] FindUsersQueryHandler queryHandler { get; set; }
+    [Inject]
+    protected FindUsersQueryHandler QueryHandler { get; set; }
+
     protected string Query { get; set; }
     protected string SortBy { get; set; }
-    protected string SortDirection { get; set; }
+    protected string? SortDirection { get; set; }
     protected string PropertiesToGet { get; set; }
-    protected IEnumerable<UserMenuItem> users;
-    protected int PageNumber = 1;
-    protected int totalUsersCount;
-    protected const int PageSize = 10; // Number of items per page
+    protected IEnumerable<UserMenuItem> Users;
+    protected int pageNumber = 1;
+    protected const int PageSize = 5;
+    protected bool disableNext = false;
+    protected bool disablePrevious = true;
 
     protected async Task HandleSearch()
     {
-        PageNumber = 1;
+        pageNumber = 1;
         await LoadUsers();
     }
 
@@ -26,19 +30,35 @@ public class IndexPage : ComponentBase
             Query = Query,
             SortBy = SortBy,
             SortDirection = SortDirection,
-            From = (PageNumber - 1) * PageSize,
-            To = PageNumber * PageSize,
+            From = (pageNumber - 1) * PageSize,
+            To = pageNumber * PageSize,
             PropertiesToRetrieve = string.IsNullOrWhiteSpace(PropertiesToGet) ? null : PropertiesToGet.Split(',').Select(p => p.Trim())
         };
-        var result = await queryHandler.Handle(findUsersQuery, PageNumber);
-        users = result; // Assuming the result is a paginated response with 'Items' property containing users
-        totalUsersCount = result.Count();
-        StateHasChanged();
+        var result = await QueryHandler.Handle(findUsersQuery);
+
+        Users = result.Any() ? result : Enumerable.Empty<UserMenuItem>();
+
+        UpdatePaginationState();
     }
 
-    protected async Task HandlePageChange(int newPageIndex)
+    protected async Task HandleNext()
     {
-        PageNumber = newPageIndex + 1;
+        pageNumber++;
         await LoadUsers();
+    }
+
+    protected async Task HandlePrevious()
+    {
+        if (pageNumber > 1)
+        {
+            pageNumber--;
+            await LoadUsers();
+        }
+    }
+
+    protected void UpdatePaginationState()
+    {
+        disablePrevious = pageNumber <= 1;
+        disableNext = Users.Count() < PageSize;
     }
 }

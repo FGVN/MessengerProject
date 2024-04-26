@@ -144,12 +144,14 @@ builder.Services.AddTransient<IRequestHandler<JoinGroupChatCommand>, JoinGroupCh
 builder.Services.AddTransient<IRequestHandler<LeaveGroupChatCommand>, LeaveGroupChatCommandHandler>();
 builder.Services.AddTransient<IRequestHandler<UpdateGroupChatCommand>, UpdateGroupChatCommandHandler>();
 builder.Services.AddTransient<IRequestHandler<MyGroupChatsQuery, IEnumerable<GroupChat>>, MyGroupChatsQueryHandler>();
+builder.Services.AddTransient<IRequestHandler<SearchQuery<GroupChatDTO>, IEnumerable<object>>, SearchGroupChatsQueryHandler>();
 
 builder.Services.AddScoped<CreateGroupChatCommandHandler>();
 builder.Services.AddScoped<JoinGroupChatCommandHandler>();
 builder.Services.AddScoped<UpdateGroupChatCommandHandler>();
 builder.Services.AddScoped<LeaveGroupChatCommandHandler>();
 builder.Services.AddScoped<MyGroupChatsQueryHandler>();
+builder.Services.AddScoped<SearchGroupChatsQueryHandler>();
 
 // Messages
 builder.Services.AddTransient<IRequestHandler<SearchQuery<ChatMessageDTO>, IEnumerable<object>>, SearchMessageQueryHandler>();

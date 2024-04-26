@@ -104,18 +104,30 @@ public abstract class QueryHandlerBase<TEntity, TDTO>
             var propertyExpressions = properties.Select<string, Expression<Func<TEntity, bool>>>(prop =>
             {
                 var propertyAccess = Expression.Property(parameter, prop);
-                Expression propertyToLower;
+
+                // Check if the property is of type string or IEnumerable<string>
                 if (propertyAccess.Type == typeof(string))
                 {
-                    propertyToLower = Expression.Call(propertyAccess, "ToLower", null);
+                    // Handle string properties
+                    var propertyToLower = Expression.Call(propertyAccess, "ToLower", null);
+                    return Expression.Lambda<Func<TEntity, bool>>(Expression.Call(propertyToLower, "Contains", null, queryToLower), parameter);
+                }
+                else if (propertyAccess.Type.GetInterfaces().Contains(typeof(IEnumerable<string>)))
+                {
+                    // Handle IEnumerable<string> properties
+                    var containsMethod = typeof(Enumerable).GetMethod("Contains", new[] { typeof(IEnumerable<string>), typeof(string) });
+
+                    return Expression.Lambda<Func<TEntity, bool>>(
+                        Expression.Call(containsMethod, propertyAccess, queryToLower),
+                        parameter);
                 }
                 else
                 {
+                    // Convert non-string properties to string and perform the Contains operation
                     var toStringMethod = propertyAccess.Type.GetMethod("ToString", Type.EmptyTypes);
-                    propertyToLower = Expression.Call(propertyAccess, toStringMethod);
+                    var propertyToLower = Expression.Call(Expression.Call(propertyAccess, toStringMethod), "ToLower", null);
+                    return Expression.Lambda<Func<TEntity, bool>>(Expression.Call(propertyToLower, "Contains", null, queryToLower), parameter);
                 }
-
-                return Expression.Lambda<Func<TEntity, bool>>(Expression.Call(propertyToLower, "Contains", null, queryToLower), parameter);
             });
 
             var body = propertyExpressions.Aggregate<Expression<Func<TEntity, bool>>, Expression>(null, (current, propertyExpression) =>
@@ -134,6 +146,9 @@ public abstract class QueryHandlerBase<TEntity, TDTO>
             return Expression.Lambda<Func<TEntity, bool>>(body, parameter);
         }
     }
+
+
+
 
     protected IEnumerable<string> GetFilterProperties()
     {

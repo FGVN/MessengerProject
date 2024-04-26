@@ -13,12 +13,10 @@ public class FindUsersQueryHandler
         _localStorageUtils = localStorageUtils;
     }
 
-    public async Task<IEnumerable<UserMenuItem>> Handle(FindUsersQuery query, int PageNumber)
+    public async Task<IEnumerable<UserMenuItem>> Handle(FindUsersQuery query)
     {
         try
         {
-            var startIndex = (PageNumber - 1) * ItemsPerPage;
-            var endIndex = startIndex + ItemsPerPage - 1;
 
             var url = $"Users/users/search";
 

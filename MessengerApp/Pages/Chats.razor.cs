@@ -7,37 +7,26 @@ public partial class ChatsPage : ComponentBase
     [Inject] private DeleteChatCommandHandler deleteChatHandler { get; set; }
     [Inject] private NavigationManager navigationManager { get; set; }
     [Inject] private CreateChatCommandHandler createChatHandler { get; set; }
-    [Inject] private FindUsersQueryHandler findUsersQueryHandler { get; set; }
 
-    protected string Query { get; set; }
     protected string SortBy { get; set; }
-    protected string SortDirection { get; set; }
+    protected string? SortDirection { get; set; }
     protected string PropertiesToGet { get; set; }
     protected IEnumerable<ChatMenuItem> chats;
-    protected int PageNumber = 1;
+    protected int pageNumber = 1;
     protected int totalChatsCount = 0;
-    protected const int PageSize = 10;
+    protected const int PageSize = 5;
+    protected bool disableNext = false;
+    protected bool disablePrevious = true;
 
     protected string selectedContactUsername;
-    protected List<string> contactUsernames = new List<string>();
 
     protected override async Task OnInitializedAsync()
     {
-        var res = await findUsersQueryHandler.Handle(new FindUsersQuery
-        {
-            Query = "a",
-            From = 0,
-            To = 100,
-            SortBy = "username",
-            SortDirection = "asc"
-        }, 1);
-        contactUsernames = res.Select(x => x.Username).ToList();
-        StateHasChanged();
     }
 
     protected async Task HandleSearch()
     {
-        PageNumber = 1;
+        pageNumber = 1;
         await LoadChats();
     }
 
@@ -45,24 +34,21 @@ public partial class ChatsPage : ComponentBase
     {
         var findChatsQuery = new FindChatsQuery
         {
-            Query = Query,
+            Query = "",
             SortBy = SortBy,
             SortDirection = SortDirection,
-            From = (PageNumber - 1) * PageSize,
-            To = PageNumber * PageSize,
+            From = (pageNumber - 1) * PageSize,
+            To = pageNumber * PageSize,
             PropertiesToRetrieve = string.IsNullOrWhiteSpace(PropertiesToGet) ? null : PropertiesToGet.Split(',').Select(p => p.Trim())
         };
-        var result = await queryHandler.Handle(findChatsQuery, PageNumber);
+        var result = await queryHandler.Handle(findChatsQuery);
         chats = result;
         totalChatsCount = result.Count();
         StateHasChanged();
+
+        UpdatePaginationState();
     }
 
-    protected async Task HandlePageChange(int newPageIndex)
-    {
-        PageNumber = newPageIndex + 1;
-        await LoadChats();
-    }
     protected void NavigateToChat(Guid chatId)
     {
         navigationManager.NavigateTo($"/chats/{chatId}");
@@ -94,5 +80,26 @@ public partial class ChatsPage : ComponentBase
         {
             Console.WriteLine($"Error creating chat: {ex.Message}");
         }
+    }
+
+    protected async Task HandleNext()
+    {
+        pageNumber++;
+        await LoadChats();
+    }
+
+    protected async Task HandlePrevious()
+    {
+        if (pageNumber > 1)
+        {
+            pageNumber--;
+            await LoadChats();
+        }
+    }
+
+    protected void UpdatePaginationState()
+    {
+        disablePrevious = pageNumber <= 1;
+        disableNext = chats.Count() < PageSize;
     }
 }

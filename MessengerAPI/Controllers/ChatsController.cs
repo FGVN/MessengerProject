@@ -47,6 +47,8 @@ public class ChatsController : ControllerBase
     [HttpPost("userchats/search")]
     public async Task<IEnumerable<object>> SearchUserChats(SearchQuery<UserChatDTO> query)
     {
+        // To get only chats of a certain user 
+        query.Query = User.FindFirstValue(ClaimTypes.NameIdentifier).ToString();
         return await _mediator.Send(query);
     }
 }

@@ -2,10 +2,9 @@
 @using CodeBehind
 @inherits GroupChatsPage
 
-<h3>Group Chats</h3>
-
 <AuthorizeView>
     <Authorized>
+        <MatH4>Group Chats</MatH4>
         <div>
             <MatButton OnClick="@NavigateToCreateChat">Create Chat</MatButton>
             <MatButton OnClick="@NavigateToJoinChat">Join Chat</MatButton>
@@ -28,5 +27,7 @@
                 </td>
             </MatTableRow>
         </MatTable>
+        <MatButton OnClick="HandlePrevious" Disabled="disablePrevious">Previous</MatButton>
+        <MatButton OnClick="HandleNext" Disabled="disableNext">Next</MatButton>
     </Authorized>
 </AuthorizeView>

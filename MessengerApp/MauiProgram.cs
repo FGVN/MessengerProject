@@ -65,6 +65,7 @@ namespace MessengerApp
             builder.Services.AddScoped<LeaveGroupChatCommandHandler>();
             builder.Services.AddScoped<UpdateGroupChatCommandHandler>();
             builder.Services.AddScoped<MyGroupChatsQueryHandler>();
+            builder.Services.AddScoped<FindGroupChatsQueryHandler>();
 
             builder.Services.AddScoped<FindChatMessageQueryHandler>();
 

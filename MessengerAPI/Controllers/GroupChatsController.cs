@@ -64,4 +64,10 @@ public class GroupChatsController : Controller
     {
         return await _mediator.Send(new MyGroupChatsQuery { UserId = User.FindFirstValue(ClaimTypes.NameIdentifier) });
     }
+
+    [HttpPost("groupchats/search")]
+    public async Task<IEnumerable<object>> SeacrhGroupChats(SearchQuery<GroupChatDTO> query)
+    {
+        return await _mediator.Send(query);
+    }
 }
