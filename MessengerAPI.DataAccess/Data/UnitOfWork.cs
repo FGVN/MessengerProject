@@ -1,8 +1,8 @@
 ﻿using DataAccess.Repositories;
-using DataDomain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess;
+
 public class UnitOfWork : IUnitOfWork, IDisposable
 {
     private readonly MessengerDbContext _context;
@@ -40,7 +40,6 @@ public class UnitOfWork : IUnitOfWork, IDisposable
             }
         }
     }
-
 
     public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class
     {

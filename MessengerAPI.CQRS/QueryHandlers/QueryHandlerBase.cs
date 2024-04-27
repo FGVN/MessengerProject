@@ -5,10 +5,14 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using DataAccess;
 using DataAccess.Repositories;
-using DataAccess.Models;
 
 namespace MessengerInfrastructure.QueryHandlers;
 
+/// <summary>
+/// Base class for query handlers providing common functionalities for handling queries.
+/// </summary>
+/// <typeparam name="TEntity">The type of entity being queried.</typeparam>
+/// <typeparam name="TDTO">The type of DTO (Data Transfer Object) representing the query result.</typeparam>
 public abstract class QueryHandlerBase<TEntity, TDTO>
     where TEntity : class
     where TDTO : class
@@ -27,6 +31,7 @@ public abstract class QueryHandlerBase<TEntity, TDTO>
         return predicate != null ? queryable.Where(predicate) : queryable;
     }
 
+
     public virtual IEnumerable<string> GetFilterProperties(TEntity entity) 
     {
         Type entityType = entity.GetType();
@@ -36,6 +41,11 @@ public abstract class QueryHandlerBase<TEntity, TDTO>
         return properties.Select(p => p.Name);
     }
 
+    /// <summary>
+    /// Performs a search operation based on the provided query.
+    /// </summary>
+    /// <param name="query">The search query.</param>
+    /// <returns>A collection of objects representing the search results.</returns>
     public virtual async Task<IEnumerable<object?>> SearchAsync(SearchQuery<TDTO> query)
     {
 
@@ -90,6 +100,12 @@ public abstract class QueryHandlerBase<TEntity, TDTO>
         return dynamicObjects.ToList();
     }
 
+    /// <summary>
+    /// Filters entities based on the provided properties and query string.
+    /// </summary>
+    /// <param name="properties">The properties to filter on.</param>
+    /// <param name="query">The query string.</param>
+    /// <returns>An expression representing the filter.</returns>
     protected Expression<Func<TEntity, bool>> FilterEntities(IEnumerable<string> properties, string query)
     {
         if (string.IsNullOrEmpty(query) || !properties.Any())
@@ -147,9 +163,6 @@ public abstract class QueryHandlerBase<TEntity, TDTO>
         }
     }
 
-
-
-
     protected IEnumerable<string> GetFilterProperties()
     {
         var properties = typeof(TDTO).GetProperties();
@@ -178,6 +191,12 @@ public abstract class QueryHandlerBase<TEntity, TDTO>
         return entities.Skip(from).Take(Math.Min(to - from, entities.Count()));
     }
 
+    /// <summary>
+    /// Creates a dynamic type based on the properties to retrieve and the DTO type.
+    /// </summary>
+    /// <param name="propertiesToRetrieve">The properties to retrieve.</param>
+    /// <param name="dtoType">The type of the DTO.</param>
+    /// <returns>The dynamically created type.</returns>
     protected Type CreateDynamicType(IEnumerable<string>? propertiesToRetrieve, Type dtoType)
     {
         var assemblyName = new AssemblyName("DynamicAssembly");

@@ -12,10 +12,17 @@ public class SearchMessageQueryHandler : QueryHandlerBase<ChatMessage, ChatMessa
     {
     }
 
+    /// <summary>
+    /// Handles the search query for chat messages and returns a collection of objects representing the search results.
+    /// </summary>
+    /// <param name="query">The search query specifying the search criteria.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>A collection of objects representing the search results.</returns>
     public async Task<IEnumerable<object>> Handle(SearchQuery<ChatMessageDTO> query, CancellationToken cancellationToken)
     {
         var results = await base.SearchAsync(query);
         var found = new List<object>();
+        // Changing the actual Id`s to Usernames
         foreach (var item in results)
         {
             if (item == null)

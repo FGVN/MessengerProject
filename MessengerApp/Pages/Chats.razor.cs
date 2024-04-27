@@ -34,6 +34,7 @@ public partial class ChatsPage : ComponentBase
     {
         var findChatsQuery = new FindChatsQuery
         {
+            // Query is empty for now, because userid will be used
             Query = "",
             SortBy = SortBy,
             SortDirection = SortDirection,
